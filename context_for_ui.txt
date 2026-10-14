@@ -1,0 +1,149 @@
+# SYNASE AI - Frontend UI Revamp Context for Google Stitch
+
+## OVERVIEW
+This document serves as the design and architecture context for a complete UI/UX revamp of the Synase AI platform. The goal is to build a "Professional Grade", high-end visual design using modern UI principles (glassmorphism, premium dark/light mode, micro-animations) while *strictly retaining* the existing service-oriented frontend architecture and API contract.
+
+There are 87 API endpoints defined across 15 domain modules. The new UI must map its components and interactions to these existing APIs and domain models (`src/types.d.ts`, `src/phase11-types.d.ts`, `src/phase12-types.d.ts`).
+
+## DESIGN AESTHETIC & THEME (STITCH PROMPT)
+Use high-end visual design standards. The interface should feel expensive, bespoke, and premium. 
+- **Typography**: Use modern fonts like Inter, Roboto, or Outfit. No generic browser defaults. Extreme type scale contrast where appropriate.
+- **Colors & Accents**: Curated, harmonious color palettes (e.g., sleek dark modes, HSL tailored colors).
+  * **Strict Solid Accents Rule**: NO harsh, multi-color or distracting rainbow linear gradients on interactive elements, buttons, select triggers, or pills. All interactive accents use refined solid tones, neutral slates, or subtle translucent fills with crisp borders.
+- **Curved Dropdown Architecture**:
+  * Complete elimination of native boxy Windows OS comboboxes and raw `<select>` elements.
+  * All dropdowns use custom curved components (`border-radius: 12px` to `16px`) with SVG chevrons, upward/downward rotation animation (`transform: rotate(180deg)`), active checkmarks, and floating elevated popovers.
+  * Dual-contract preservation: Hidden `<select>` elements remain in the DOM with synced values to preserve 100% of test assertions.
+- **Layout & Anti-Clipping**:
+  * Asymmetric layouts, gapless bento grids for dashboards.
+  * Card containers (`.p12-metric`, `.p12-panel`, `.settings-card`) use `overflow: visible; position: relative;` with individual child head/body corner radius to guarantee floating dropdown menus and tooltips never get clipped by card edges.
+  * Stacking elevation via `.has-open-select` and calibrated z-index tiers (Topbar: `80`, Dropdowns: `120`, Select Popovers: `9999`).
+- **Motion**: Smooth transitions, hover states, and perpetual micro-motion.
+- **Elements**: No heavy muddy shadows. Use subtle borders, glass effects, and minimalist structural boundaries.
+
+## CORE APPLICATION PAGES & API MAPPING
+
+### 1. Authentication & Onboarding (Module 1 — Auth 4 Pro Suite)
+**Visual Requirements:**
+- **Strict Single-Viewport Architecture:** Entire page locks to `100dvh` (tested at 1920×991 and standard viewports) with zero vertical scroll (`scrollHeight === clientHeight`).
+- **Left Art Panel (Brand Narrative & Orbital Constellation):**
+  * Brand header with insignia (`SYNASE AI DECISION INTELLIGENCE`) and `← Back to Home` glassy pill navigation.
+  * Commanding hero headline: `Clear engineering decisions from idea to production.` (`clamp(38px, 4vw, 54px)`) with iridescent gradient shimmer on `production.`.
+  * Tracked monospace eyebrow (`ENTERPRISE DECISION PLATFORM`) and narrative description.
+  * Three trust pills: `SOC 2 Type II`, `Enterprise Grade · 99.99% SLA`, `Private & Encrypted · Zero Retention`.
+  * Orbital Integration Constellation: 3 concentric counter-rotating SVG orbits, glowing energy pulse particle nodes, central core disc with luminous violet aura and *"TRUSTED ENGINEERING INTELLIGENCE"* typography, and 6 floating integration nodes (GitHub, Kubernetes, Docker, Linear, Notion, Jira) with brand-calibrated hover glow and scale elevation.
+  * Capability matrix: 3 numbered glass cards (`01 Code & Specs`, `02 Smart Review`, `03 Verified Action`) with squircle icon boxes and live status pills (`Code Sync: Ready`, `Analysis: Active`, `Security: Verified`).
+  * Bottom boundary is clean and evenly spaced without cramping quote boxes, allowing generous typography scaling.
+- **Right Panel (Authentication Card):**
+  * Double-bezel glassmorphic card (`rgba(12, 14, 22, 0.94)`) with animated 2px top-edge gradient shimmer beam (`topBorderShimmer`).
+  * Segmented mode switcher (`Sign in` / `Create account`) with active royal-slate pill styling.
+  * Dual Enterprise OAuth SSO buttons (`GitHub` and `Google SSO`).
+  * Interactive credentials form with left-aligned icons, client-side validation, and interactive password visibility toggler (`[data-toggle-password]`).
+  * High-contrast crisp white CTA button (`Sign in to Workspace →`) with kinetic hover bloom.
+  * Direct Sandbox Workspace entry (`▶ Direct Demo Workspace Entry (ABESIT / Platform Prj) →`).
+**Key Interactions:**
+- Login: `POST /api/v1/auth/login` (API-01)
+- Register: `POST /api/v1/auth/register` (API-02)
+- Recover: `POST /api/v1/auth/recover` (API-03)
+- Instant Demo Access: `data-action="demo-login"` bypassing credentials to launch platform workspace directly
+- Enterprise OAuth Simulation: `data-sso="github"`, `data-sso="google"`
+- Password Toggle: `[data-toggle-password]` toggling password mask & eye icons
+- Architecture Desk Inquiry: `POST /api/v1/contact` (landing & auth footer link)
+
+### 2. Dashboard & Workspace Overview (Module 2, 3, 15)
+**Visual Requirements:** A "mission control" style overview. Bento-box grid layout for metrics. Data-heavy but raw mechanical/utilitarian aesthetic. Clear presentation of the Attention Queue, Recent Activity, and System Readiness.
+- **Custom Topbar Switchers:**
+  * Workspace Switcher: `.topbar-dropdown` with `.topbar-switcher-btn` displaying active workspace (`SYNASE Core`), layer icon, and SVG chevron.
+  * Project Switcher: `.topbar-dropdown` with `.topbar-switcher-btn` displaying active project (`SYNASE Platform`), folder icon, and SVG chevron.
+  * Dropdown Popover: Floating card with `border-radius: 16px`, checkmark indicators (`.topbar-dropdown-check`), and smooth outside-click dismissal.
+- **Decoupled Card Overflow:**
+  * `.p12-metric` and `.p12-panel` use `overflow: visible;` with rounded child heads (`border-top-left-radius: 19px`, `border-bottom-left-radius: 19px`), completely preventing card clipping.
+**Key Interactions:**
+- Workspace Dashboard: `GET /api/v1/workspaces/:workspaceId/dashboard` (API-13)
+- Phase 12 Global Dashboard: `GET /api/v1/dashboard` (API-86)
+- System Readiness: `GET /api/v1/dashboard/readiness` (API-87)
+- List Projects: `GET /api/v1/workspaces/:workspaceId/projects` (API-09)
+- Workspace Switch Action: `data-action="topbar-pick-workspace"`
+- Project Switch Action: `data-action="topbar-pick-project"`
+
+### 3. Project Detail & DevOps Intelligence (Module 3, 10, 11)
+**Visual Requirements:** Industrial/brutalist structural approach. High data density but readable. Distinct tabs/panels for architecture, security, and quality scores. Interactive knowledge graph visualization.
+**Key Interactions:**
+- Project Overview: `GET /api/v1/projects/:projectId` (API-10)
+- DevOps Summary: `GET /api/v1/projects/:projectId/devops/summary` (API-53)
+- DevOps Findings & Recs: `GET /api/v1/projects/:projectId/devops/findings` (API-54), `GET /api/v1/projects/:projectId/devops/recommendations` (API-55)
+- Context Graph: `GET /api/v1/projects/:projectId/context/knowledge-graph` (API-63)
+
+### 4. Multimodal Assets & Repository Management (Module 4, 5)
+**Visual Requirements:** Flat lists with rich iconography for file types. Drag-and-drop upload zones with smooth progress micro-animations. Clear connection statuses for repos.
+**Key Interactions:**
+- Assets List: `GET /api/v1/projects/:projectId/assets` (API-19)
+- Upload Flow: `POST .../upload/initiate` (API-20), `POST .../upload/complete` (API-21)
+- Repositories: `GET /api/v1/projects/:projectId/repositories` (API-14)
+- Connect/Sync Repo: `POST .../repositories` (API-15), `POST .../sync` (API-16)
+
+### 5. Conversations & Analysis Workflows / Chat & Work Surface (Module 6, 7, 8)
+**Visual Requirements:**
+- Spacious editorial layout. Messages feel like structured documents, not basic speech bubbles.
+- **Auto Mode Integration:** Chat composer features an active "Auto" intelligence mode toggle (pill button styled like state-of-the-art AI chatbots) allowing seamless switching between autonomous planning and interactive step-by-step guidance.
+- **Multi-Source Upload Compatibility:** Universal attachment menu compatible with local files, repository branches, API endpoints, and clipboard pastes with instant chip preview.
+- **Curved Custom Filter Selects:** Inline filter selects use curved `.field-inline.small` styling (`border-radius: 10px`, custom SVG arrow carats).
+**Key Interactions:**
+- Conversations: `GET .../conversations` (API-26), `GET .../messages` (API-28), `POST .../messages` (API-29)
+- Workflows: `GET .../workflows` (API-33), `GET .../workflows/:workflowId/tasks` (API-35)
+- MCP Overview: `GET /api/v1/mcp/overview` (API-39)
+- Composer Auto Mode: `data-action="work-composer-mode"`
+- Multi-Source Upload: `data-action="work-chip-picker"` (Files, Repo, URL, Architecture)
+
+### 6. Decision Reports & Approvals (Module 12)
+**Visual Requirements:** Formal, secure-feeling documents. High-contrast typography. Approval gates need prominent, unmistakable "Approve" / "Reject" interactive components with rationale inputs.
+**Key Interactions:**
+- List Reports: `GET /api/v1/projects/:projectId/reports` (API-65)
+- Get Report Detail: `GET /api/v1/projects/:projectId/reports/:reportId` (API-66)
+- List Approvals: `GET /api/v1/projects/:projectId/approvals` (API-67)
+- Decide Approval: `POST /api/v1/projects/:projectId/approvals/:approvalId/decide` (API-72)
+
+### 7. Integrations & Audit Logs (Module 13, 14)
+**Visual Requirements:** Settings-style pages. Provider connection cards (GitHub, Jira, Slack). Immutable audit logs should look like secure terminal output or declassified ledgers.
+**Key Interactions:**
+- List Providers: `GET /api/v1/integrations/providers` (API-75)
+- Provider Connections: `GET /api/v1/projects/:projectId/integrations/connections` (API-76)
+- Audit Logs: `GET /api/v1/projects/:projectId/audit` (API-84)
+
+## INTEGRATION RULES
+1. **Component Interfaces:** Components must consume the Domain models provided in `src/types.d.ts` without attempting to alter the data structures.
+2. **Service Delegation:** All network calls, loading states, and error handling should be delegated to the existing service instances (`api`, `phase11Api`, `phase12Api`).
+3. **Idempotency:** Any form submissions (creations, approvals) must pass an `idempotencyKey` as expected by the mutating endpoints.
+4. **DOM Integrity:** Any MutationObservers must have robust content guards to prevent infinite loops.
+
+## STITCH SCREEN CATALOG & COMPONENT MAPPING
+
+The following high‑level screens were retrieved from the Stitch design project (ID 5523432117435616622). Each screen title is mapped to the corresponding domain module and API surface in the existing frontend. This mapping guides the implementation of premium UI components while preserving the current service‑oriented architecture.
+
+| Screen Title | Primary Domain | Relevant API(s) | Suggested Component |
+|--------------|----------------|----------------|--------------------|
+| **Decision Report Viewer** | Decision Reports (Module 12) | `GET /api/v1/projects/:projectId/reports/:reportId` (API‑66) | `DecisionReportViewer` – detailed report card with approval actions |
+| **Projects** | Project Lifecycle (Module 3) | `GET /api/v1/workspaces/:workspaceId/projects` (API‑09) | `ProjectList` – bento grid of project cards with status badges |
+| **Product Intelligence** | Product Intelligence (Module 9) | `GET /api/v1/projects/:projectId/features` (API‑49) | `ProductFeaturesBoard` – interactive feature matrix |
+| **Contact** | Settings / Support (Module 13) | *(no direct API, static content)* | `ContactPage` – styled form with placeholder submit handler |
+| **Settings & Enterprise Governance** | Settings (Module 13) | `GET /api/v1/integrations/providers` (API‑75) & connections | `IntegrationSettings` – provider cards with connect/disconnect flows |
+| **Project Dashboard** | Dashboard (Module 15) | `GET /api/v1/dashboard` (API‑86) | `WorkspaceDashboard` – glass‑morphism overview panels |
+| **Enterprise Login** | Authentication (Module 1) | `POST /api/v1/auth/login` (API‑01) | `LoginPage` – premium auth form |
+| **Decision Intelligence Console** | Decision Intelligence (Module 15) | `GET /api/v1/dashboard/readiness` (API‑87) | `ReadinessConsole` – readiness status cards |
+| **Analysis Progress** | Analysis Requests (Module 7) | `GET /api/v1/projects/:projectId/analysis-requests` (API‑30) | `AnalysisProgressTracker` – timeline view |
+| **New Analysis Pipeline** | Workflow Orchestration (Module 8) | `GET /api/v1/projects/:projectId/workflows` (API‑33) | `WorkflowBuilder` – step‑by‑step builder UI |
+| **About** | About / Branding (static) | *(no API)* | `AboutPage` – static content with SVG logo |
+| **Decision Reports** | Decision Reports (Module 12) | `GET /api/v1/projects/:projectId/reports` (API‑65) | `ReportsCatalog` – searchable report list |
+| **DevOps Intelligence** | DevOps Intelligence (Module 10) | `GET /api/v1/projects/:projectId/devops/summary` (API‑53) | `DevOpsSummaryCard` – multi‑metric display |
+| **Activity & Audit Logs** | Activity / Audit (Module 14) | `GET /api/v1/projects/:projectId/activity` (API‑83) & `GET /api/v1/projects/:projectId/audit` (API‑84) | `ActivityLogPanel` – immutable log view |
+| **System Architecture** | System Architecture (static) | *(no API)* | `ArchitecturePage` – diagram with interactive nodes |
+| **How It Works** | Intro / Overview (static) | *(no API)* | `HowItWorks` – animated explainer page |
+
+**Implementation Guidance**
+- For each component, create a dedicated module under `src/components/` following the existing naming convention.
+- Wire the component to the appropriate service (`api`, `phase11Api`, `phase12Api`) using the request/response contracts defined in `src/types.d.ts`.
+- Apply the premium design system defined earlier (typography, colors, layout, motion).
+- Ensure all mutating actions include an `idempotencyKey` header as per the **Integration Rules** section.
+- Guard any MutationObserver usage per the **DOM Integrity** rule.
+
+Feel free to iterate on this mapping or request additional details for any specific screen.

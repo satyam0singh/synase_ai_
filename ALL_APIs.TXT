@@ -1,0 +1,1202 @@
+================================================================================
+                     SYNASE AI — COMPLETE FRONTEND-TO-BACKEND API CATALOG
+                               (MOCK & LIVE SERVICE CONTRACTS)
+================================================================================
+Release / Prototype Phase: Phases 0–12 + Settings & Auth 4 Revamp + Curved Dropdowns & Work Suite (v0.12.0)
+Architecture Boundary:     Frontend (UI / Modules) -> Domain Service -> /api/v1 (Mock / Live)
+Target File:               ALL_APIs.TXT
+Total Documented APIs:     120 Endpoints / Service Methods (103 Contract Tests Passing)
+================================================================================
+
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. ARCHITECTURAL CONVENTIONS & ENVELOPE SPECIFICATIONS
+   - 1.1 Response Envelopes (Success & List)
+   - 1.2 Error Envelope & Canonical Codes
+   - 1.3 Idempotency Policy & Mutation Safety
+   - 1.4 Mock Safety Guarantees & Non-Execution Semantics
+   - 1.5 Header & Transport Security (Redaction & Omission)
+
+2. CORE DOMAIN APIS (src/api.js - Phases 0–10)
+   - Module 1:  Authentication & User Profile (4 APIs)
+   - Module 2:  Workspace Management & Membership (4 APIs)
+   - Module 3:  Project Lifecycle & Settings (5 APIs)
+   - Module 4:  Repositories & Source Control (5 APIs)
+   - Module 5:  Multimodal Assets & Ingestion (7 APIs)
+   - Module 6:  Conversations & Messaging (4 APIs)
+   - Module 7:  Analysis Requests & Workflow Orchestration (9 APIs)
+   - Module 8:  MCP V2 Runtime, Trace & Capability Discovery (9 APIs)
+   - Module 9:  Product Intelligence & Strategy (5 APIs)
+   - Module 10: DevOps Intelligence, Findings & Recommendations (7 APIs)
+   - Module 11: Context Inventory, Memory & Knowledge Graph (5 APIs)
+   - Module 12: Decision Reports & Human-In-The-Loop Approvals (10 APIs)
+
+3. PHASE 11 APIS: INTEGRATIONS, ACTIVITY & AUDIT (src/phase11-api.js)
+   - Module 13: Third-Party Integrations & Lifecycle (8 APIs)
+   - Module 14: Operational Activity & Immutable Audit Projection (3 APIs)
+
+4. PHASE 12 APIS: DASHBOARD & LIVE TRANSPORT ADAPTER (src/phase12-api.js)
+   - Module 15: Decision Intelligence Overview & Readiness (2 APIs)
+
+5. QUICK REFERENCE MATRIX (ALL 87 APIS AT A GLANCE)
+
+================================================================================
+1. ARCHITECTURAL CONVENTIONS & ENVELOPE SPECIFICATIONS
+================================================================================
+
+1.1 RESPONSE ENVELOPES
+----------------------
+All API responses adhere strictly to canonical domain envelopes:
+
+Single Entity Success Envelope:
+{
+  "data": { ... }
+}
+
+Paginated List Envelope:
+{
+  "data": [ ... ],
+  "meta": {
+    "page": 1,
+    "pageSize": 25,
+    "total": 42
+  }
+}
+
+1.2 ERROR ENVELOPE & CANONICAL CODES
+------------------------------------
+Errors are normalized with unique request identifiers and canonical codes:
+{
+  "code": "RESOURCE_NOT_FOUND" | "IDEMPOTENCY_REQUIRED" | "INVALID_CONTEXT_REFERENCE" | ...,
+  "message": "Human-readable description of error.",
+  "status": 400 | 401 | 403 | 404 | 408 | 409 | 500 | 502 | 503,
+  "requestId": "req_XXXXXXXX",
+  "details": { ... }
+}
+
+1.3 IDEMPOTENCY POLICY & MUTATION SAFETY
+----------------------------------------
+- All mutating calls (creation, uploads, connections, report generation, approvals, comments)
+  REQUIRE an `idempotencyKey` option (passed as a parameter or via `X-Idempotency-Key`).
+- Omitting the idempotency key causes an immediate rejection (`IDEMPOTENCY_REQUIRED`).
+- Replaying a request with an existing idempotency key deterministically returns the exact
+  same saved receipt without re-executing or altering state.
+
+1.4 MOCK SAFETY GUARANTEES & NON-EXECUTION SEMANTICS
+---------------------------------------------------
+- Zero External Requests: No third-party API (GitHub, Jira, Slack, OpenAI, Anthropic, etc.) is contacted.
+- Zero Execution: No code is executed, no repositories are committed to, no pipelines are triggered.
+- Approval != Execution: Approval states (approved/rejected) strictly represent recorded human intent
+  and explicitly carry `executed: false` and `downstreamActionsExecuted: false`.
+- Activity != Audit: Operational activity logs are mutable business events; audit records are immutable,
+  security-grade projections with cryptographic redaction.
+
+1.5 HEADER & TRANSPORT SECURITY
+-------------------------------
+All requests and fixtures undergo recursive redaction before exposure:
+- [REDACTED]: `authorization`, `cookie`, `credential`, `password`, `secret`, `token`, `api_key`, `client_secret`
+- [OMITTED]: `requestBody`, `responseBody`, `rawPayload`, `headers`
+
+
+================================================================================
+2. CORE DOMAIN APIS (src/api.js - Phases 0–10)
+================================================================================
+
+--------------------------------------------------------------------------------
+MODULE 1: AUTHENTICATION & USER PROFILE
+--------------------------------------------------------------------------------
+
+[API-01] api.login(credentials)
+- Logical Route:     POST /api/v1/auth/login
+- Scope:             Global
+- Payload:           { "email": string (required), "password": string (required) }
+- Idempotency:       Not required
+- Response:          { "data": User }
+- Mock Behavior:     Validates credentials and authenticates session as `usr_satyam`. No external identity provider is contacted.
+
+[API-02] api.register(input)
+- Logical Route:     POST /api/v1/auth/register
+- Scope:             Global
+- Payload:           { "email": string (required), "password": string (required), "displayName": string }
+- Idempotency:       Not required
+- Response:          { "data": { "email": string, "status": "pending_verification" } }
+- Mock Behavior:     Simulates user registration; returns verification prompt without sending email.
+
+[API-03] api.recover(email)
+- Logical Route:     POST /api/v1/auth/recover
+- Scope:             Global
+- Payload:           { "email": string (required) }
+- Idempotency:       Not required
+- Response:          { "data": { "status": "accepted", "email": string } }
+- Mock Behavior:     Accepts password recovery request. No reset tokens are dispatched.
+
+[API-04] api.getMe()
+- Logical Route:     GET /api/v1/auth/me
+- Scope:             Authenticated User
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": User { id, email, displayName, globalRole, avatarUrl } }
+- Mock Behavior:     Returns the current authenticated user domain object (`Satyam Singh`, `usr_satyam`).
+
+
+--------------------------------------------------------------------------------
+MODULE 2: WORKSPACE MANAGEMENT & MEMBERSHIP
+--------------------------------------------------------------------------------
+
+[API-05] api.listWorkspaces()
+- Logical Route:     GET /api/v1/workspaces
+- Scope:             Global User
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Workspace[], "meta": PageMeta }
+- Mock Behavior:     Returns accessible workspaces (`ws_synase`, `ws_research`).
+
+[API-06] api.getWorkspace(workspaceId)
+- Logical Route:     GET /api/v1/workspaces/:workspaceId
+- Scope:             Workspace-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Workspace { id, name, slug, description, role, status } }
+- Mock Behavior:     Returns workspace detail or throws 404 `RESOURCE_NOT_FOUND`.
+
+[API-07] api.listWorkspaceMembers()
+- Logical Route:     GET /api/v1/workspaces/:workspaceId/members
+- Scope:             Workspace-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": WorkspaceMember[], "meta": PageMeta }
+- Mock Behavior:     Returns workspace member list (`Satyam Singh`, `Maya Chen`).
+
+[API-08] api.inviteWorkspaceMember({ email, role })
+- Logical Route:     POST /api/v1/workspaces/:workspaceId/members/invite
+- Scope:             Workspace-scoped
+- Payload:           { "email": string (required), "role": WorkspaceRole (required) }
+- Idempotency:       Required
+- Response:          { "data": { "email": string, "role": string, "status": "invited" } }
+- Mock Behavior:     Records invitation stub without transmitting external emails.
+
+
+--------------------------------------------------------------------------------
+MODULE 3: PROJECT LIFECYCLE & SETTINGS
+--------------------------------------------------------------------------------
+
+[API-09] api.listProjects(workspaceId)
+- Logical Route:     GET /api/v1/workspaces/:workspaceId/projects
+- Scope:             Workspace-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Project[], "meta": PageMeta }
+- Mock Behavior:     Returns all projects under the workspace (`prj_platform`, `prj_mcp`).
+
+[API-10] api.getProject(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Project { id, workspaceId, name, slug, description, goal, lifecycleStatus, role, updatedAt } }
+- Mock Behavior:     Returns project metadata or throws 404 with standard request ID.
+
+[API-11] api.createProject(input, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects
+- Scope:             Workspace-scoped
+- Payload:           { "workspaceId": string, "name": string, "description"?: string, "goal"?: string }
+- Idempotency:       REQUIRED (`IDEMPOTENCY_REQUIRED` if omitted)
+- Response:          { "data": Project }
+- Mock Behavior:     Creates a new project with `draft` status, assigning caller as `owner`.
+
+[API-12] api.updateProject(projectId, patch)
+- Logical Route:     PATCH /api/v1/projects/:projectId
+- Scope:             Project-scoped
+- Payload:           Partial<Project> { name, description, goal, lifecycleStatus }
+- Idempotency:       Not required
+- Response:          { "data": Project }
+- Mock Behavior:     Applies in-memory patch to project attributes and updates `updatedAt`.
+
+[API-13] api.getDashboard(workspaceId)
+- Logical Route:     GET /api/v1/workspaces/:workspaceId/dashboard
+- Scope:             Workspace-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": { "workspace": Workspace, "metrics": DashboardMetric[], "recentProjects": Project[], "recentActivity": ActivityItem[] } }
+- Mock Behavior:     Returns aggregated Phase 0–2 summary metrics and recent activity for the workspace.
+
+
+--------------------------------------------------------------------------------
+MODULE 4: REPOSITORIES & SOURCE CONTROL
+--------------------------------------------------------------------------------
+
+[API-14] api.listRepositories(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/repositories
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Repository[], "meta": PageMeta }
+- Mock Behavior:     Returns connected repositories strictly filtered by project scope.
+
+[API-15] api.connectRepository(projectId, input, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/repositories
+- Scope:             Project-scoped
+- Payload:           { "name": string, "fullName": string, "provider": RepositoryProvider, "defaultBranch"?: string }
+- Idempotency:       REQUIRED
+- Response:          { "data": Repository }
+- Mock Behavior:     Creates a repository in `pending` connection status. No git clone or webhook setup occurs.
+
+[API-16] api.syncRepository(projectId, repositoryId)
+- Logical Route:     POST /api/v1/projects/:projectId/repositories/:repoId/sync
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       Not required
+- Response:          { "data": Repository }
+- Mock Behavior:     Simulates repository synchronization and updates `lastSyncedAt`.
+
+[API-17] api.listRepositorySnapshots(repositoryId)
+- Logical Route:     GET /api/v1/repositories/:repoId/snapshots
+- Scope:             Repository-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": RepositorySnapshot[], "meta": PageMeta }
+- Mock Behavior:     Returns simulated commit snapshots, file counts, and byte sizes.
+
+[API-18] api.getRepositoryTree(repositoryId)
+- Logical Route:     GET /api/v1/repositories/:repoId/tree
+- Scope:             Repository-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Array<{ path: string, type: "file" | "dir", size?: number }> }
+- Mock Behavior:     Returns deterministic file hierarchy tree for code browsing.
+
+
+--------------------------------------------------------------------------------
+MODULE 5: MULTIMODAL ASSETS & INGESTION
+--------------------------------------------------------------------------------
+
+[API-19] api.listAssets(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/assets
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Asset[], "meta": PageMeta }
+- Mock Behavior:     Returns uploaded documents, PRDs, logs, audio, images, and context assets.
+
+[API-20] api.initiateUpload(projectId, input, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/assets/upload/initiate
+- Scope:             Project-scoped
+- Payload:           { "name": string, "inputType": InputType, "byteSize": number, "mimeType": string, "sourceType": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": { "assetId": string, "upload": { "url": string, "method": "PUT", "headers": Record<string, string> } } }
+- Mock Behavior:     Generates a mock signed-upload URL (`mock-upload:...`). Does not accept real file bytes.
+
+[API-21] api.completeUpload(projectId, assetId)
+- Logical Route:     POST /api/v1/projects/:projectId/assets/:assetId/upload/complete
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       Not required
+- Response:          { "data": Asset }
+- Mock Behavior:     Transitions asset from upload state to `received` in processing queue.
+
+[API-22] api.addTextInput(projectId, input)
+- Logical Route:     POST /api/v1/projects/:projectId/assets/text
+- Scope:             Project-scoped
+- Payload:           { "name": string, "content": string, "category"?: string }
+- Idempotency:       Not required
+- Response:          { "data": Asset }
+- Mock Behavior:     Stores raw text snippet into mock project asset inventory as `ready`.
+
+[API-23] api.addUrlInput(projectId, input)
+- Logical Route:     POST /api/v1/projects/:projectId/assets/url
+- Scope:             Project-scoped
+- Payload:           { "name": string, "url": string }
+- Idempotency:       Not required
+- Response:          { "data": Asset }
+- Mock Behavior:     Accepts external URL reference without scraping or crawling.
+
+[API-24] api.advanceAssetDemo(projectId, assetId)
+- Logical Route:     POST /api/v1/projects/:projectId/assets/:assetId/advance
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       Not required
+- Response:          { "data": Asset }
+- Mock Behavior:     Explicitly steps one lifecycle state forward (`received` -> `scanning` -> `extracting` -> `indexing` -> `ready`).
+
+[API-25] api.deleteAsset(projectId, assetId)
+- Logical Route:     DELETE /api/v1/projects/:projectId/assets/:assetId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       Not required
+- Response:          { "data": { "id": string, "status": "deleted" } }
+- Mock Behavior:     Marks asset as `deleted` in project inventory.
+
+
+--------------------------------------------------------------------------------
+MODULE 6: CONVERSATIONS & MESSAGING
+--------------------------------------------------------------------------------
+
+[API-26] api.listConversations(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/conversations
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ConversationSession[], "meta": PageMeta }
+- Mock Behavior:     Returns scoped conversational threads.
+
+[API-27] api.createConversation(projectId, input, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/conversations
+- Scope:             Project-scoped
+- Payload:           { "title": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": ConversationSession }
+- Mock Behavior:     Creates a new conversation session without initiating AI generation.
+
+[API-28] api.listMessages(projectId, conversationId)
+- Logical Route:     GET /api/v1/projects/:projectId/conversations/:conversationId/messages
+- Scope:             Conversation-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ConversationMessage[], "meta": PageMeta }
+- Mock Behavior:     Returns chronological message history with asset and repo references.
+
+[API-29] api.postMessage(projectId, conversationId, input, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/conversations/:conversationId/messages
+- Scope:             Conversation-scoped
+- Payload:           { "text": string, "assetIds"?: string[], "repositoryIds"?: string[] }
+- Idempotency:       REQUIRED
+- Response:          { "data": ConversationMessage }
+- Mock Behavior:     Appends message and returns mock acknowledgment. Explicitly does not trigger LLM completion.
+
+
+--------------------------------------------------------------------------------
+MODULE 7: ANALYSIS REQUESTS & WORKFLOW ORCHESTRATION
+--------------------------------------------------------------------------------
+
+[API-30] api.listAnalysisRequests(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/analysis-requests
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": AnalysisRequest[], "meta": PageMeta }
+- Mock Behavior:     Lists queued and active analysis tickets.
+
+[API-31] api.createAnalysisRequest(projectId, input, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/analysis-requests
+- Scope:             Project-scoped
+- Payload:           { "requestText": string, "requestType": string, "priority": string, "executionStrategy": string, "conversationId"?: string, "assetIds": string[], "repositoryIds": string[] }
+- Idempotency:       REQUIRED
+- Response:          { "data": AnalysisRequest }
+- Mock Behavior:     Validates that referenced assets and repos belong strictly to `projectId`. Returns queued receipt linked to a mock workflow.
+
+[API-32] api.cancelAnalysisRequest(projectId, requestId)
+- Logical Route:     POST /api/v1/projects/:projectId/analysis-requests/:requestId/cancel
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       Not required
+- Response:          { "data": AnalysisRequest }
+- Mock Behavior:     Cancels requested analysis ticket.
+
+[API-33] api.listWorkflows(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/workflows
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": WorkflowExecution[], "meta": PageMeta }
+- Mock Behavior:     Returns orchestration workflows for project.
+
+[API-34] api.getWorkflow(projectId, workflowId)
+- Logical Route:     GET /api/v1/projects/:projectId/workflows/:workflowId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": WorkflowExecution }
+- Mock Behavior:     Returns authoritative workflow execution snapshot.
+
+[API-35] api.listWorkflowTasks(projectId, workflowId)
+- Logical Route:     GET /api/v1/projects/:projectId/workflows/:workflowId/tasks
+- Scope:             Workflow-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": WorkflowTask[], "meta": PageMeta }
+- Mock Behavior:     Returns sequential execution stages (orchestrator, mcp, reporting).
+
+[API-36] api.listWorkflowEvents(projectId, workflowId)
+- Logical Route:     GET /api/v1/projects/:projectId/workflows/:workflowId/events
+- Scope:             Workflow-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": WorkflowEvent[], "meta": PageMeta }
+- Mock Behavior:     Returns deduplicated, ordered SSE event fixtures.
+
+[API-37] api.controlWorkflow(projectId, workflowId, action)
+- Logical Route:     POST /api/v1/projects/:projectId/workflows/:workflowId/control
+- Scope:             Workflow-scoped
+- Payload:           { "action": "pause" | "resume" | "cancel" | "retry" }
+- Idempotency:       Not required
+- Response:          { "data": WorkflowExecution }
+- Mock Behavior:     Validates state transition and updates workflow execution status.
+
+[API-38] api.nextMockWorkflowEvent(projectId, workflowId)
+- Logical Route:     POST /api/v1/projects/:projectId/workflows/:workflowId/events/mock-next
+- Scope:             Workflow-scoped
+- Payload:           None
+- Idempotency:       Not required
+- Response:          { "data": { "event": WorkflowEvent | null, "workflow": WorkflowExecution, "terminal": boolean } }
+- Mock Behavior:     Steps deterministic event stream forward by one event.
+
+
+--------------------------------------------------------------------------------
+MODULE 8: MCP (MODEL CONTEXT PROTOCOL) V2 RUNTIME & TRACE
+--------------------------------------------------------------------------------
+
+[API-39] api.getMcpOverview()
+- Logical Route:     GET /api/v1/mcp/overview
+- Scope:             Global Runtime
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": { activeRequests: number, healthyServers: number, availableTools: number, activeModels: number } }
+- Mock Behavior:     Aggregates MCP runtime health, counts, and active connections.
+
+[API-40] api.listMcpRequests()
+- Logical Route:     GET /api/v1/mcp/requests
+- Scope:             Global Runtime
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": McpRequest[], "meta": PageMeta }
+- Mock Behavior:     Lists model/tool execution requests and confidence ratings.
+
+[API-41] api.getMcpTrace(requestId)
+- Logical Route:     GET /api/v1/mcp/requests/:requestId/trace
+- Scope:             Request-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": McpTraceStage[] }
+- Mock Behavior:     Returns 7-chamber execution pipeline trace with durations and redact credentials.
+
+[API-42] api.listMcpModels()
+- Logical Route:     GET /api/v1/mcp/models
+- Scope:             Global Runtime
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": McpModel[], "meta": PageMeta }
+- Mock Behavior:     Lists configured models (Claude, GPT, local) and context windows.
+
+[API-43] api.listMcpTools()
+- Logical Route:     GET /api/v1/mcp/tools
+- Scope:             Global Runtime
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": McpTool[], "meta": PageMeta }
+- Mock Behavior:     Lists registered capability tools (inspectors, analyzers, planners).
+
+[API-44] api.listMcpServers()
+- Logical Route:     GET /api/v1/mcp/servers
+- Scope:             Global Runtime
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": McpServer[], "meta": PageMeta }
+- Mock Behavior:     Lists transport connections (internal, https, sse) and health states.
+
+[API-45] api.listMcpDirectories()
+- Logical Route:     GET /api/v1/mcp/directories
+- Scope:             Global Runtime
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": McpDirectory[], "meta": PageMeta }
+- Mock Behavior:     Lists discovery registries (internal registry, Smithery).
+
+[API-46] api.checkMcpServerHealth(serverId)
+- Logical Route:     POST /api/v1/mcp/servers/:serverId/health
+- Scope:             Server-scoped
+- Payload:           None
+- Idempotency:       Not required
+- Response:          { "data": { "serverId": string, "healthStatus": "healthy", "mock": true } }
+- Mock Behavior:     Returns simulated health probe without contacting actual server.
+
+[API-47] api.discoverMcpDirectory(directoryId, { idempotencyKey })
+- Logical Route:     POST /api/v1/mcp/directories/:directoryId/discover
+- Scope:             Directory-scoped
+- Payload:           None
+- Idempotency:       REQUIRED
+- Response:          { "data": { "directoryId": string, "resultsCount": number, "status": "completed", "mock": true } }
+- Mock Behavior:     Simulates capability catalog search without network traffic.
+
+
+--------------------------------------------------------------------------------
+MODULE 9: PRODUCT INTELLIGENCE & STRATEGY
+--------------------------------------------------------------------------------
+
+[API-48] api.listRequirements(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/requirements
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Requirement[], "meta": PageMeta }
+- Mock Behavior:     Returns functional/non-functional requirements with confirmed vs ai_suggested provenance.
+
+[API-49] api.listProductFeatures(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/features
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ProductFeature[], "meta": PageMeta }
+- Mock Behavior:     Returns scored features sorted by priorityRank (business value, impact, effort, risk).
+
+[API-50] api.getProductStrategy(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/strategy
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ProductStrategy { objective, principles, risks, provenance } }
+- Mock Behavior:     Returns evidence-grounded strategic intent.
+
+[API-51] api.listRoadmapItems(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/roadmap
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": RoadmapItem[], "meta": PageMeta }
+- Mock Behavior:     Returns milestone release schedule with dependency validation.
+
+[API-52] api.runProductMock(projectId, action, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/intelligence/product/mock-action
+- Scope:             Project-scoped
+- Payload:           { "action": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": { "action": string, "changed": false, "mock": true } }
+- Mock Behavior:     Simulates AI prioritization. Explicitly alters zero confirmed records.
+
+[API-88] api.getProductOverview(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/intelligence/product/overview
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ProductOverview }
+- Mock Behavior:     Returns aggregate metrics covering verified requirements, roadmap milestone, and strategic risks.
+
+[API-89] api.getRequirement(projectId, requirementId)
+- Logical Route:     GET /api/v1/projects/:projectId/requirements/:requirementId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Requirement }
+- Mock Behavior:     Returns individual requirement record with evidence citations and architecture impact.
+
+[API-90] api.createRequirement(projectId, input, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/requirements
+- Scope:             Project-scoped
+- Payload:           { "title": string, "type": string, "priority": string, "rationale"?: string, "evidence"?: string[], "architectureImpact"?: string }
+- Idempotency:       REQUIRED
+- Response:          { "data": Requirement }
+- Mock Behavior:     Creates new requirement in identified status with confirmed provenance.
+
+[API-91] api.updateRequirement(projectId, requirementId, patch, { idempotencyKey })
+- Logical Route:     PATCH /api/v1/projects/:projectId/requirements/:requirementId
+- Scope:             Project-scoped
+- Payload:           Partial<Requirement>
+- Idempotency:       REQUIRED
+- Response:          { "data": Requirement }
+- Mock Behavior:     Updates status, priority, or architecture impact with idempotent safety.
+
+[API-92] api.deleteRequirement(projectId, requirementId, { idempotencyKey })
+- Logical Route:     DELETE /api/v1/projects/:projectId/requirements/:requirementId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       REQUIRED
+- Response:          { "data": { "id": string, "deleted": true, "success": true } }
+- Mock Behavior:     Deletes requirement and returns confirmation receipt.
+
+[API-93] api.getFeature(projectId, featureId)
+- Logical Route:     GET /api/v1/projects/:projectId/features/:featureId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ProductFeature }
+- Mock Behavior:     Returns candidate feature with multi-criteria assessment scores.
+
+[API-94] api.createFeature(projectId, input, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/features
+- Scope:             Project-scoped
+- Payload:           { "title": string, "businessValue": number, "impact": number, "effort": number, "risk": number, "rationale"?: string }
+- Idempotency:       REQUIRED
+- Response:          { "data": ProductFeature }
+- Mock Behavior:     Appends candidate feature and assigns next sequential priority rank.
+
+[API-95] api.updateFeature(projectId, featureId, patch, { idempotencyKey })
+- Logical Route:     PATCH /api/v1/projects/:projectId/features/:featureId
+- Scope:             Project-scoped
+- Payload:           Partial<ProductFeature>
+- Idempotency:       REQUIRED
+- Response:          { "data": ProductFeature }
+- Mock Behavior:     Calibrates feature score parameters or updates delivery status.
+
+[API-96] api.reprioritizeFeatures(projectId, ranks, { idempotencyKey })
+- Logical Route:     PUT /api/v1/projects/:projectId/features/prioritization
+- Scope:             Project-scoped
+- Payload:           string[] (ordered IDs) | { "id": string, "rank": number }[]
+- Idempotency:       REQUIRED
+- Response:          { "data": ProductFeature[] }
+- Mock Behavior:     Re-sequences candidate features based on manual ordering or automated Value/Effort ratio.
+
+[API-97] api.saveProductStrategy(projectId, payload, { idempotencyKey })
+- Logical Route:     PUT /api/v1/projects/:projectId/intelligence/product/strategy
+- Scope:             Project-scoped
+- Payload:           { "objective": string, "principles": string[], "risks": string[] }
+- Idempotency:       REQUIRED
+- Response:          { "data": ProductStrategy }
+- Mock Behavior:     Updates primary strategic objective, guiding tenets, and known grounded risks.
+
+[API-98] api.createRoadmapItem(projectId, payload, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/roadmap
+- Scope:             Project-scoped
+- Payload:           { "milestone": string, "release"?: string, "status"?: string, "startDate"?: string, "endDate"?: string, "dependencies"?: string[] }
+- Idempotency:       REQUIRED
+- Response:          { "data": RoadmapItem }
+- Mock Behavior:     Schedules a new milestone with validated dependency references.
+
+[API-99] api.updateRoadmapItem(projectId, roadmapItemId, patch, { idempotencyKey })
+- Logical Route:     PATCH /api/v1/projects/:projectId/roadmap/:roadmapItemId
+- Scope:             Project-scoped
+- Payload:           Partial<RoadmapItem>
+- Idempotency:       REQUIRED
+- Response:          { "data": RoadmapItem }
+- Mock Behavior:     Updates milestone target dates, dependencies, or delivery lifecycle status.
+
+[API-100] api.deleteRoadmapItem(projectId, roadmapItemId, { idempotencyKey })
+- Logical Route:     DELETE /api/v1/projects/:projectId/roadmap/:roadmapItemId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       REQUIRED
+- Response:          { "data": { "id": string, "deleted": true, "success": true } }
+- Mock Behavior:     Removes milestone from release schedule.
+
+[API-101] api.listProductDecisions(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/intelligence/product/decisions
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ProductDecision[], "meta": PageMeta }
+- Mock Behavior:     Returns immutable audit trail linking product decisions to subjects and evidence citations.
+
+[API-102] api.getProductDecision(projectId, decisionId)
+- Logical Route:     GET /api/v1/projects/:projectId/intelligence/product/decisions/:decisionId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ProductDecision }
+- Mock Behavior:     Returns detailed decision record with author identity, timestamp, and impact scope.
+
+[API-103] api.runProductIntelligenceAction(projectId, action, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/intelligence/product/actions/:action
+- Scope:             Project-scoped
+- Payload:           { "action": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": { "receiptId": string, "action": string, "status": "completed", "details": string, "timestamp": string } }
+- Mock Behavior:     Executes deterministic product intelligence action; returns audit receipt.
+
+
+--------------------------------------------------------------------------------
+MODULE 10: DEVOPS INTELLIGENCE, FINDINGS & RECOMMENDATIONS
+--------------------------------------------------------------------------------
+
+[API-53] api.getDevOpsSummary(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/devops/summary
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": DevOpsSummary { architectureScore, qualityScore, securityScore, testCoverage, deploymentReadiness } }
+- Mock Behavior:     Returns multi-dimensional DevOps health scores based on mock analysis.
+
+[API-54] api.listFindings(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/devops/findings
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": DevOpsFinding[], "meta": PageMeta }
+- Mock Behavior:     Returns security, architecture, and testing findings with schema severity and citations.
+
+[API-55] api.listDevOpsRecommendations(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/devops/recommendations
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": DevOpsRecommendation[], "meta": PageMeta }
+- Mock Behavior:     Returns actionable recommendations with explicit `executed: false` semantics.
+
+[API-56] api.listDependencies(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/devops/dependencies
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": DependencyItem[], "meta": PageMeta }
+- Mock Behavior:     Returns package and third-party dependencies with risk ratings.
+
+[API-57] api.listTestSuggestions(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/devops/tests
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": TestSuggestion[], "meta": PageMeta }
+- Mock Behavior:     Returns suggested contract/unit test enhancements.
+
+[API-58] api.listDeploymentPlans(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/devops/deployments
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": DeploymentPlan[], "meta": PageMeta }
+- Mock Behavior:     Returns staged rollout plans with approval gates. Explicitly does not trigger deployment.
+
+[API-59] api.runDevOpsMock(projectId, domain, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/intelligence/devops/mock-action
+- Scope:             Project-scoped
+- Payload:           { "domain": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": { "domain": string, "actionsExecuted": 0, "mock": true } }
+- Mock Behavior:     Simulates pipeline diagnostics. Zero real infrastructure touched.
+
+
+--------------------------------------------------------------------------------
+MODULE 11: CONTEXT INVENTORY, MEMORY & KNOWLEDGE GRAPH
+--------------------------------------------------------------------------------
+
+[API-60] api.listContextItems(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/context/inventory
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ContextItem[], "meta": PageMeta }
+- Mock Behavior:     Returns cataloged context sources labeled with sensitivity (public/internal/restricted) and trustLevel.
+
+[API-61] api.searchMemory(projectId, query)
+- Logical Route:     POST /api/v1/projects/:projectId/context/memory/search
+- Scope:             Project-scoped
+- Payload:           { "query": string }
+- Idempotency:       Not required
+- Response:          { "data": MemoryResult[], "meta": PageMeta }
+- Mock Behavior:     Searches deterministic vector memory fixtures; returns scored excerpts.
+
+[API-62] api.listRetrievalHistory(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/context/retrieval-history
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": RetrievalRecord[], "meta": PageMeta }
+- Mock Behavior:     Returns historical memory retrieval ranking runs.
+
+[API-63] api.getKnowledgeGraph(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/context/knowledge-graph
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": KnowledgeGraph { status, nodes: KnowledgeNode[], edges: KnowledgeEdge[] } }
+- Mock Behavior:     Projects knowledge graph entities while abstracting underlying storage details.
+
+[API-64] api.runContextMock(projectId, action, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/context/mock-action
+- Scope:             Project-scoped
+- Payload:           { "action": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": { "action": string, "contactedStores": 0, "mock": true } }
+- Mock Behavior:     Simulates context re-indexing without contacting vector databases or knowledge stores.
+
+
+--------------------------------------------------------------------------------
+MODULE 12: DECISION REPORTS & HUMAN-IN-THE-LOOP APPROVALS
+--------------------------------------------------------------------------------
+
+[API-65] api.listReports(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/reports
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": DecisionReport[], "meta": PageMeta }
+- Mock Behavior:     Returns reports with normalized confidence scores and canonical statuses.
+
+[API-66] api.getReport(projectId, reportId)
+- Logical Route:     GET /api/v1/projects/:projectId/reports/:reportId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": DecisionReport { id, title, status, confidence, sections, references, decisions } }
+- Mock Behavior:     Returns full structured report content, citations, and pending decisions.
+
+[API-67] api.listApprovals(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/approvals
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Approval[], "meta": PageMeta }
+- Mock Behavior:     Returns decision gates requiring human intervention.
+
+[API-68] api.getApproval(projectId, approvalId)
+- Logical Route:     GET /api/v1/projects/:projectId/approvals/:approvalId
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": Approval { id, title, type, status, rationale, risk, allowedActions, comments, executed: false } }
+- Mock Behavior:     Returns approval detail. Guarantees `executed: false`.
+
+[API-69] api.generateReport(projectId, type, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/reports/generate
+- Scope:             Project-scoped
+- Payload:           { "type": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": { "workflowId": string, "status": "queued", "mock": true } }
+- Mock Behavior:     Queues a mock report workflow receipt.
+
+[API-70] api.publishReport(projectId, reportId, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/reports/:reportId/publish
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       REQUIRED
+- Response:          { "data": { "reportId": string, "published": false, "status": "published_receipt", "mock": true } }
+- Mock Behavior:     Requires that report is `approved` before publishing receipt can be created. Does not broadcast.
+
+[API-71] api.exportReport(projectId, reportId, format, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/reports/:reportId/export
+- Scope:             Project-scoped
+- Payload:           { "format": "pdf" | "docx" | "json" }
+- Idempotency:       REQUIRED
+- Response:          { "data": ReportExportArtifact { id, reportId, format, status: "mock_ready", downloadUrl: null } }
+- Mock Behavior:     Generates safe export receipt without creating file downloads.
+
+[API-72] api.decideApproval(projectId, approvalId, decision, rationale, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/approvals/:approvalId/decide
+- Scope:             Project-scoped
+- Payload:           { "decision": "approved" | "rejected", "rationale": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": Approval }
+- Mock Behavior:     Transitions approval state. Rejects transition if already decided. Guarantees `executed: false`.
+
+[API-73] api.addApprovalComment(projectId, approvalId, text, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/approvals/:approvalId/comments
+- Scope:             Project-scoped
+- Payload:           { "text": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": ApprovalComment }
+- Mock Behavior:     Appends reviewer feedback note to approval record.
+
+[API-74] api.cancelApproval(projectId, approvalId, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/approvals/:approvalId/cancel
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       REQUIRED
+- Response:          { "data": Approval }
+- Mock Behavior:     Cancels open approval request.
+
+
+================================================================================
+3. PHASE 11 APIS: INTEGRATIONS, ACTIVITY & AUDIT (src/phase11-api.js)
+================================================================================
+
+--------------------------------------------------------------------------------
+MODULE 13: THIRD-PARTY INTEGRATIONS & LIFECYCLE
+--------------------------------------------------------------------------------
+
+[API-75] phase11Api.listIntegrationProviders()
+- Logical Route:     GET /api/v1/integrations/providers
+- Scope:             Global Catalog
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": IntegrationProvider[], "meta": PageMeta }
+- Mock Behavior:     Returns available providers (`GitHub`, `Jira`, `Slack`) with auth methods and capabilities.
+
+[API-76] phase11Api.listIntegrationConnections(projectId)
+- Logical Route:     GET /api/v1/projects/:projectId/integrations/connections
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": IntegrationConnection[], "meta": PageMeta }
+- Mock Behavior:     Returns connections strictly scoped to `projectId`. Keeps authorization, health, and sync statuses independent.
+
+[API-77] phase11Api.getIntegrationConnection(projectId, id)
+- Logical Route:     GET /api/v1/projects/:projectId/integrations/connections/:id
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": IntegrationConnection }
+- Mock Behavior:     Returns single connection entity or throws 404.
+
+[API-78] phase11Api.listIntegrationRuns(projectId, connectionId?)
+- Logical Route:     GET /api/v1/projects/:projectId/integrations/runs
+- Scope:             Project-scoped
+- Payload:           { "connectionId"?: string }
+- Idempotency:       None
+- Response:          { "data": IntegrationRun[], "meta": PageMeta }
+- Mock Behavior:     Returns sync/health runs with `importedRecords: 0` and `externalContacted: false`.
+
+[API-79] phase11Api.connectIntegration(projectId, providerId, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/integrations/connect
+- Scope:             Project-scoped
+- Payload:           { "providerId": string }
+- Idempotency:       REQUIRED
+- Response:          { "data": IntegrationSyncReceipt }
+- Mock Behavior:     Returns pending connection receipt. Does not initiate OAuth flow.
+
+[API-80] phase11Api.disconnectIntegration(projectId, id, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/integrations/:id/disconnect
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       REQUIRED
+- Response:          { "data": IntegrationSyncReceipt }
+- Mock Behavior:     Returns non-execution disconnect receipt.
+
+[API-81] phase11Api.checkIntegrationHealth(projectId, id, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/integrations/:id/health
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       REQUIRED
+- Response:          { "data": IntegrationSyncReceipt }
+- Mock Behavior:     Returns mock health check receipt without pinging external API.
+
+[API-82] phase11Api.syncIntegration(projectId, id, { idempotencyKey })
+- Logical Route:     POST /api/v1/projects/:projectId/integrations/:id/sync
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       REQUIRED
+- Response:          { "data": IntegrationSyncReceipt }
+- Mock Behavior:     Returns sync receipt with `importedRecords: 0` and `externalContacted: false`.
+
+
+--------------------------------------------------------------------------------
+MODULE 14: OPERATIONAL ACTIVITY & IMMUTABLE AUDIT PROJECTION
+--------------------------------------------------------------------------------
+
+[API-83] phase11Api.listActivity(projectId, filters)
+- Logical Route:     GET /api/v1/projects/:projectId/activity
+- Scope:             Project-scoped
+- Payload (Query):   { "actor"?: string, "action"?: string, "domain"?: string, "from"?: string }
+- Idempotency:       None
+- Response:          { "data": ActivityItem[], "meta": PageMeta }
+- Mock Behavior:     Filters operational business history (who did what, domain, outcome). Explicitly labeled as NOT an immutable audit log.
+
+[API-84] phase11Api.listAuditEvents(projectId, filters)
+- Logical Route:     GET /api/v1/projects/:projectId/audit
+- Scope:             Project-scoped
+- Payload (Query):   { "actor"?: string, "action"?: string, "outcome"?: string }
+- Idempotency:       None
+- Response:          { "data": AuditEvent[], "meta": PageMeta }
+- Mock Behavior:     Returns read-only immutable audit trail with `requestId`, `correlationId`, and redacted metadata.
+
+[API-85] phase11Api.getAuditEvent(projectId, id)
+- Logical Route:     GET /api/v1/projects/:projectId/audit/:id
+- Scope:             Project-scoped
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": AuditEvent }
+- Mock Behavior:     Returns single immutable audit record with strictly sanitized metadata.
+
+
+================================================================================
+4. PHASE 12 APIS: DASHBOARD & LIVE TRANSPORT ADAPTER (src/phase12-api.js)
+================================================================================
+
+--------------------------------------------------------------------------------
+MODULE 15: DECISION INTELLIGENCE OVERVIEW & READINESS
+--------------------------------------------------------------------------------
+
+[API-86] phase12Api.getDashboard({ signal })
+- Logical Route:     GET /api/v1/dashboard
+- Scope:             Workspace / Selected Project
+- Transport:         Mock adapter (default) or Live HTTP Adapter
+- Headers (Live):    Accept: application/json, X-Request-ID: req_XXXXXXXX
+- Credentials:       include
+- Payload:           None
+- Idempotency:       Safe Read (Idempotent GET)
+- Response:          { "data": DashboardOverview, "meta": { "adapterMode": "mock" | "live", ... } }
+- Mock Behavior:     Returns deterministic workspace overview (attention queue, projects, workflows, outputs, activity, readiness).
+- Live Behavior:     Sends GET to configured `baseUrl/api/v1/dashboard`, validates response shape, verifies HTTPS, propagates request IDs, and enforces timeout (8s).
+
+[API-87] phase12Api.getIntegrationReadiness()
+- Logical Route:     GET /api/v1/dashboard/readiness
+- Scope:             System / Adapter Probe
+- Payload:           None
+- Idempotency:       None
+- Response:          { "data": ContractCheck[], "meta": { "adapterMode": "mock" | "live" } }
+- Mock Behavior:     Returns readiness status for adapter mode, base URL, auth contract, aggregate contract, SSE, and uploads.
+
+
+================================================================================
+5. QUICK REFERENCE MATRIX (ALL 87 APIS AT A GLANCE)
+================================================================================
+
+ID     METHOD  LOGICAL ROUTE                                                       IDEMPOTENCY?  MODULE / DOMAIN
+-------------------------------------------------------------------------------------------------------------------
+API-01 POST    /api/v1/auth/login                                                  No            Auth & User
+API-02 POST    /api/v1/auth/register                                               No            Auth & User
+API-03 POST    /api/v1/auth/recover                                                No            Auth & User
+API-04 GET     /api/v1/auth/me                                                     Safe Read     Auth & User
+API-05 GET     /api/v1/workspaces                                                  Safe Read     Workspaces
+API-06 GET     /api/v1/workspaces/:workspaceId                                     Safe Read     Workspaces
+API-07 GET     /api/v1/workspaces/:workspaceId/members                             Safe Read     Workspaces
+API-08 POST    /api/v1/workspaces/:workspaceId/members/invite                      Yes           Workspaces
+API-09 GET     /api/v1/workspaces/:workspaceId/projects                            Safe Read     Projects
+API-10 GET     /api/v1/projects/:projectId                                         Safe Read     Projects
+API-11 POST    /api/v1/projects                                                    Yes           Projects
+API-12 PATCH   /api/v1/projects/:projectId                                         No            Projects
+API-13 GET     /api/v1/workspaces/:workspaceId/dashboard                           Safe Read     Projects / Dashboard
+API-14 GET     /api/v1/projects/:projectId/repositories                            Safe Read     Repositories
+API-15 POST    /api/v1/projects/:projectId/repositories                            Yes           Repositories
+API-16 POST    /api/v1/projects/:projectId/repositories/:repoId/sync               No            Repositories
+API-17 GET     /api/v1/repositories/:repoId/snapshots                              Safe Read     Repositories
+API-18 GET     /api/v1/repositories/:repoId/tree                                   Safe Read     Repositories
+API-19 GET     /api/v1/projects/:projectId/assets                                  Safe Read     Assets & Ingestion
+API-20 POST    /api/v1/projects/:projectId/assets/upload/initiate                  Yes           Assets & Ingestion
+API-21 POST    /api/v1/projects/:projectId/assets/:assetId/upload/complete         No            Assets & Ingestion
+API-22 POST    /api/v1/projects/:projectId/assets/text                             No            Assets & Ingestion
+API-23 POST    /api/v1/projects/:projectId/assets/url                              No            Assets & Ingestion
+API-24 POST    /api/v1/projects/:projectId/assets/:assetId/advance                 No            Assets & Ingestion
+API-25 DELETE  /api/v1/projects/:projectId/assets/:assetId                         No            Assets & Ingestion
+API-26 GET     /api/v1/projects/:projectId/conversations                           Safe Read     Conversations
+API-27 POST    /api/v1/projects/:projectId/conversations                           Yes           Conversations
+API-28 GET     /api/v1/projects/:projectId/conversations/:convId/messages          Safe Read     Conversations
+API-29 POST    /api/v1/projects/:projectId/conversations/:convId/messages          Yes           Conversations
+API-30 GET     /api/v1/projects/:projectId/analysis-requests                       Safe Read     Analysis Requests
+API-31 POST    /api/v1/projects/:projectId/analysis-requests                       Yes           Analysis Requests
+API-32 POST    /api/v1/projects/:projectId/analysis-requests/:reqId/cancel         No            Analysis Requests
+API-33 GET     /api/v1/projects/:projectId/workflows                               Safe Read     Workflows
+API-34 GET     /api/v1/projects/:projectId/workflows/:workflowId                   Safe Read     Workflows
+API-35 GET     /api/v1/projects/:projectId/workflows/:workflowId/tasks             Safe Read     Workflows
+API-36 GET     /api/v1/projects/:projectId/workflows/:workflowId/events            Safe Read     Workflows
+API-37 POST    /api/v1/projects/:projectId/workflows/:workflowId/control           No            Workflows
+API-38 POST    /api/v1/projects/:projectId/workflows/:workflowId/events/mock-next  No            Workflows
+API-39 GET     /api/v1/mcp/overview                                                Safe Read     MCP V2 Runtime
+API-40 GET     /api/v1/mcp/requests                                                Safe Read     MCP V2 Runtime
+API-41 GET     /api/v1/mcp/requests/:requestId/trace                               Safe Read     MCP V2 Runtime
+API-42 GET     /api/v1/mcp/models                                                  Safe Read     MCP V2 Runtime
+API-43 GET     /api/v1/mcp/tools                                                   Safe Read     MCP V2 Runtime
+API-44 GET     /api/v1/mcp/servers                                                 Safe Read     MCP V2 Runtime
+API-45 GET     /api/v1/mcp/directories                                             Safe Read     MCP V2 Runtime
+API-46 POST    /api/v1/mcp/servers/:serverId/health                                No            MCP V2 Runtime
+API-47 POST    /api/v1/mcp/directories/:directoryId/discover                       Yes           MCP V2 Runtime
+API-48 GET     /api/v1/projects/:projectId/requirements                            Safe Read     Product Intelligence
+API-49 GET     /api/v1/projects/:projectId/features                                Safe Read     Product Intelligence
+API-50 GET     /api/v1/projects/:projectId/strategy                                Safe Read     Product Intelligence
+API-51 GET     /api/v1/projects/:projectId/roadmap                                 Safe Read     Product Intelligence
+API-52 POST    /api/v1/projects/:projectId/intelligence/product/mock-action        Yes           Product Intelligence
+API-53 GET     /api/v1/projects/:projectId/devops/summary                          Safe Read     DevOps Intelligence
+API-54 GET     /api/v1/projects/:projectId/devops/findings                         Safe Read     DevOps Intelligence
+API-55 GET     /api/v1/projects/:projectId/devops/recommendations                  Safe Read     DevOps Intelligence
+API-56 GET     /api/v1/projects/:projectId/devops/dependencies                     Safe Read     DevOps Intelligence
+API-57 GET     /api/v1/projects/:projectId/devops/tests                            Safe Read     DevOps Intelligence
+API-58 GET     /api/v1/projects/:projectId/devops/deployments                      Safe Read     DevOps Intelligence
+API-59 POST    /api/v1/projects/:projectId/intelligence/devops/mock-action         Yes           DevOps Intelligence
+API-60 GET     /api/v1/projects/:projectId/context/inventory                       Safe Read     Context & Memory
+API-61 POST    /api/v1/projects/:projectId/context/memory/search                   No            Context & Memory
+API-62 GET     /api/v1/projects/:projectId/context/retrieval-history               Safe Read     Context & Memory
+API-63 GET     /api/v1/projects/:projectId/context/knowledge-graph                 Safe Read     Context & Memory
+API-64 POST    /api/v1/projects/:projectId/context/mock-action                     Yes           Context & Memory
+API-65 GET     /api/v1/projects/:projectId/reports                                 Safe Read     Reports & Approvals
+API-66 GET     /api/v1/projects/:projectId/reports/:reportId                       Safe Read     Reports & Approvals
+API-67 GET     /api/v1/projects/:projectId/approvals                               Safe Read     Reports & Approvals
+API-68 GET     /api/v1/projects/:projectId/approvals/:approvalId                   Safe Read     Reports & Approvals
+API-69 POST    /api/v1/projects/:projectId/reports/generate                        Yes           Reports & Approvals
+API-70 POST    /api/v1/projects/:projectId/reports/:reportId/publish               Yes           Reports & Approvals
+API-71 POST    /api/v1/projects/:projectId/reports/:reportId/export                Yes           Reports & Approvals
+API-72 POST    /api/v1/projects/:projectId/approvals/:approvalId/decide            Yes           Reports & Approvals
+API-73 POST    /api/v1/projects/:projectId/approvals/:approvalId/comments          Yes           Reports & Approvals
+API-74 POST    /api/v1/projects/:projectId/approvals/:approvalId/cancel            Yes           Reports & Approvals
+API-75 GET     /api/v1/integrations/providers                                      Safe Read     Phase 11 Integrations
+API-76 GET     /api/v1/projects/:projectId/integrations/connections                Safe Read     Phase 11 Integrations
+API-77 GET     /api/v1/projects/:projectId/integrations/connections/:id            Safe Read     Phase 11 Integrations
+API-78 GET     /api/v1/projects/:projectId/integrations/runs                       Safe Read     Phase 11 Integrations
+API-79 POST    /api/v1/projects/:projectId/integrations/connect                    Yes           Phase 11 Integrations
+API-80 POST    /api/v1/projects/:projectId/integrations/:id/disconnect             Yes           Phase 11 Integrations
+API-81 POST    /api/v1/projects/:projectId/integrations/:id/health                 Yes           Phase 11 Integrations
+API-82 POST    /api/v1/projects/:projectId/integrations/:id/sync                   Yes           Phase 11 Integrations
+API-83 GET     /api/v1/projects/:projectId/activity                                Safe Read     Phase 11 Activity
+API-84 GET     /api/v1/projects/:projectId/audit                                   Safe Read     Phase 11 Audit
+API-85 GET     /api/v1/projects/:projectId/audit/:id                               Safe Read     Phase 11 Audit
+API-86 GET     /api/v1/dashboard                                                   Safe Read     Phase 12 Dashboard
+API-87 GET     /api/v1/dashboard/readiness                                         Safe Read     Phase 12 Readiness
+API-88 GET     /api/v1/projects/:projectId/intelligence/product/overview           Safe Read     Product Intelligence
+API-89 GET     /api/v1/projects/:projectId/requirements/:requirementId             Safe Read     Product Requirements
+API-90 POST    /api/v1/projects/:projectId/requirements                             Yes           Product Requirements
+API-91 PATCH   /api/v1/projects/:projectId/requirements/:requirementId             Yes           Product Requirements
+API-92 DELETE  /api/v1/projects/:projectId/requirements/:requirementId             Yes           Product Requirements
+API-93 GET     /api/v1/projects/:projectId/features/:featureId                     Safe Read     Product Prioritization
+API-94 POST    /api/v1/projects/:projectId/features                                Yes           Product Prioritization
+API-95 PATCH   /api/v1/projects/:projectId/features/:featureId                     Yes           Product Prioritization
+API-96 PUT     /api/v1/projects/:projectId/features/prioritization                 Yes           Product Prioritization
+API-97 PUT     /api/v1/projects/:projectId/intelligence/product/strategy           Yes           Product Strategy
+API-98 POST    /api/v1/projects/:projectId/roadmap                                  Yes           Product Roadmap
+API-99 PATCH   /api/v1/projects/:projectId/roadmap/:roadmapItemId                  Yes           Product Roadmap
+API-100 DELETE /api/v1/projects/:projectId/roadmap/:roadmapItemId                  Yes           Product Roadmap
+API-101 GET    /api/v1/projects/:projectId/intelligence/product/decisions          Safe Read     Product Decisions
+API-102 GET    /api/v1/projects/:projectId/intelligence/product/decisions/:id       Safe Read     Product Decisions
+API-103 POST   /api/v1/projects/:projectId/intelligence/product/actions/:action     Yes           Product Intelligence
+API-104 GET    /api/v1/settings/effective                                          Safe Read     Settings Control Plane
+API-105 GET    /api/v1/settings/definitions                                        Safe Read     Settings Control Plane
+API-106 PUT    /api/v1/settings/values/:id                                         Yes           Settings Control Plane
+API-107 POST   /api/v1/settings/reset                                              Yes           Settings Control Plane
+API-108 GET    /api/v1/settings/providers                                          Safe Read     Settings AI & Models
+API-109 GET    /api/v1/settings/agent-policy                                       Safe Read     Settings Agent Policy
+API-110 PUT    /api/v1/settings/agent-policy                                       Yes           Settings Agent Policy
+API-111 GET    /api/v1/settings/api-keys                                           Safe Read     Settings Developer Keys
+API-112 POST   /api/v1/settings/api-keys                                           Yes           Settings Developer Keys (Inv 19)
+API-113 DELETE /api/v1/settings/api-keys/:id                                       Yes           Settings Developer Keys
+API-114 GET    /api/v1/settings/connectors                                         Safe Read     Settings Connectors
+API-115 PUT    /api/v1/settings/connectors/:id                                     Yes           Settings Connectors
+API-116 GET    /api/v1/settings/automations                                        Safe Read     Settings Automations
+API-117 PUT    /api/v1/settings/automations/:id                                     Yes           Settings Automations
+API-118 GET    /api/v1/settings/usage                                              Safe Read     Settings Usage Quotas
+API-119 POST   /api/v1/settings/data/export                                        Safe Read     Settings Data Portability
+API-120 POST   /api/v1/contact                                                     Yes           Enterprise Architecture Desk (Landing/Auth)
+
+================================================================================
+6. FRONTEND ROUTING & AUTH-TO-DASHBOARD WORKFLOW (MAPPING SPECIFICATION)
+================================================================================
+
+6.1 PRIMARY ROUTE MATRIX
+------------------------
+Entry Path                      Component / Target           Primary Action / APIs
+--------------------------------------------------------------------------------
+index.html                      Redirect -> landing.html     Immediate browser redirect to Marketing / Landing
+landing.html                    Landing Overview             Fluid gradient waves, logo loop, blob cursor, enterprise contact form (API-120)
+landing.html#login              Auth Modal                   Modal sign-in dialog (`POST /api/v1/auth/login` API-01)
+app.html#/auth/login            Auth 4 Pro Single-Viewport   100dvh split layout with Orbital Constellation, enlarged hero headline typography, 6 floating integration nodes (GitHub, K8s, Docker, Linear, Notion, Jira), capability cards (01, 02, 03), OAuth SSO, demo entry (API-01, demo-login)
+app.html#/auth/register         Account Creation             Registration form (`POST /api/v1/auth/register` API-02)
+app.html#/auth/forgot-password  Access Recovery              Recovery instructions (`POST /api/v1/auth/recover` API-03)
+app.html#/app/dashboard         Decision Intelligence Console Global readiness & workspace overview (API-13, 86, 87)
+app.html#/app/intelligence/product Product Intelligence Console Product requirements, prioritization, strategy, roadmap, decisions (API-48..52, 88..103)
+app.html#/app/settings          Settings Control Plane       16 Canonical configuration domains, API Keys, Connectors, Autonomy (API-104..119)
+app.html#/app/settings/:section Settings Section View        Scoped domain view (general, ai-models, agents, tools, developer, data, etc.)
+
+6.2 USER TRANSITION CONTRACT: "START NOW", DEMO BYPASS & AUTHENTICATION
+----------------------------------------------------------------------
+1. Direct Access ("Start Now"):
+   - When "Start Now" or "Start Analysis" is clicked from any landing or overview banner, the application directly transitions to `app.html#/app/dashboard`.
+   - The authoritative mock state auto-hydrates the active user session and opens project `prj_platform` without blocking user flow.
+
+2. Instant Sandbox Bypass ("Direct Demo Workspace Entry"):
+   - Clicking `[▶ Direct Demo Workspace Entry (ABESIT / Platform Prj) →]` on `#/auth/login` (`data-action="demo-login"`) immediately bypasses credential entry and hydrates into the active workspace chat / platform view.
+
+3. Authenticated Flow ("Login"):
+   - Submitting valid credentials (e.g. `alex.turner@company.com`) calls `POST /api/v1/auth/login` (API-01).
+   - Upon successful response, the client redirects immediately to `app.html#/app/dashboard` and runs `hydrate()` to populate metrics, attention queues, and projects.
+
+4. Enterprise OAuth Simulation ("GitHub" / "Google SSO"):
+   - Clicking either SSO button (`data-sso="github"`, `data-sso="google"`) displays an enterprise simulation toast notification and redirects to workspace within 600ms.
+
+6.3 TOPBAR & WORKSPACE SWITCHER DUAL CONTRACT SPECIFICATION
+----------------------------------------------------------
+1. UI Custom Dropdown Component:
+   - Workspace Switcher: `.topbar-dropdown` containing `.topbar-switcher-btn` with workspace layers icon, current workspace title (`SYNASE Core`), and chevron indicator with animated rotation (`transform: rotate(180deg)`).
+   - Project Switcher: `.topbar-dropdown` containing `.topbar-switcher-btn` with project folder icon, current project title (`SYNASE Platform`), and chevron indicator.
+   - Floating Popover Menu: `.topbar-dropdown-menu` with elevated shadow, `border-radius: 16px`, category header, active checkmark icons (`.topbar-dropdown-check`), and click-outside dismissal.
+2. DOM Test & Automation Compatibility:
+   - Preserves `<select id="workspace-switcher" class="context-select-hidden" style="display:none;">` and `<select id="project-switcher" class="context-select-hidden" style="display:none;">` with synchronized values.
+   - All unit test DOM queries and programmatic triggers continue to evaluate truthfully without breaking contract assertions.
+
+6.4 CARD CONTAINER CLIPPING & ELEVATION ARCHITECTURE
+----------------------------------------------------
+1. Overflow Decoupling:
+   - Replaced `overflow: hidden;` on `.p12-metric` and `.p12-panel` with `overflow: visible; position: relative;`.
+   - Inner header components (`.p12-metric-head`, `.p12-panel-head`) apply explicit corner radius (`border-top-left-radius: 19px`, `border-bottom-left-radius: 19px`) to maintain structural aesthetics without clipping floating selects or tooltips.
+2. Stacking Context Elevation:
+   - Topbar: `z-index: 80`
+   - Topbar Switcher Menus: `z-index: 120`
+   - Custom Settings Panels: `z-index: 9999` via dynamic `.has-open-select` parent row and card elevation.
+
+================================================================================
+END OF CATALOG (ALL 120 APIS + FRONTEND ROUTING MAPPED)
+================================================================================
+
+

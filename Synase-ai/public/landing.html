@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f8f9fc" />
+    <meta name="description" content="SYNASE AI — Engineering decisions powered by complete project context. Connect requirements, repositories, architecture, testing, and DevOps telemetry." />
+    <title>SYNASE AI — Decision Intelligence Platform</title>
+    <link rel="icon" type="image/svg+xml" href="./src/assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="./src/assets/logo-mark.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet" />
+    <script>
+      /* set the theme before first paint so there is no flash */
+      (function () {
+        try {
+          var saved = localStorage.getItem('synase-theme');
+          var dark = saved
+            ? saved === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="./src/styles/landing/landing.css?v=7" />
+    <script src="./src/assets/lucide.min.js"></script>
+  </head>
+  <body>
+    <!-- ATMOSPHERIC GRADIENT WAVES BACKGROUND (React Bits) -->
+    <div id="gradient-waves-root" class="gradient-waves-container" aria-hidden="true"></div>
+
+    <!-- THEME-AWARE BLOB CURSOR (React Bits) -->
+    <div id="blob-cursor-root" aria-hidden="true"></div>
+
+    <!-- NAV -->
+    <nav class="nav" id="main-nav" aria-label="Primary navigation">
+      <a class="nav-brand" href="#" aria-label="SYNASE AI home">
+        <div class="nav-brand-mark">
+          <svg class="brand-mark-svg" viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="navGradA" x1="0%" y1="0%" x2="1" y2="1"><stop offset="0%" stop-color="#3279f9"/><stop offset="100%" stop-color="#1a73e8"/></linearGradient>
+              <linearGradient id="navGradB" x1="1" y1="0%" x2="0" y2="1"><stop offset="0%" stop-color="#3279f9"/><stop offset="100%" stop-color="#1a73e8"/></linearGradient>
+              <linearGradient id="navGradC" x1="0%" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#1a73e8"/><stop offset="100%" stop-color="#45474d"/></linearGradient>
+            </defs>
+            <g stroke-linejoin="round" stroke-linecap="round">
+              <path d="M50 6 L92 78 L76 78 L42 20 L50 6 Z" fill="url(#navGradA)" fill-opacity="0.25" stroke="#3279f9" stroke-width="2.2" />
+              <path d="M92 78 L8 78 L16 64 L76 64 L76 78 Z" fill="url(#navGradB)" fill-opacity="0.28" stroke="#1a73e8" stroke-width="2.2" />
+              <path d="M8 78 L50 6 L58 20 L24 78 L8 78 Z" fill="url(#navGradC)" fill-opacity="0.22" stroke="#45474d" stroke-width="2.2" />
+              <path d="M42 20 L58 20 L30 68 L74 68 L66 54 L38 54 L50 34" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.6" fill="none" />
+            </g>
+          </svg>
+        </div>
+        SYNASE <span>AI</span>
+      </a>
+      <ul class="nav-links" id="landing-nav-links" role="list">
+        <li><a href="#" class="active">Home</a></li>
+        <li><a href="#product">Product Layer</a></li>
+        <li><a href="#devops">DevOps Layer</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+        <li class="nav-mobile-cta"><button class="nav-mobile-btn-ghost" data-auth="open" type="button">Login</button></li>
+        <li class="nav-mobile-cta"><a href="app.html#/app/chat" class="nav-mobile-btn-primary">Start Now →</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Toggle visual theme"><span class="theme-toggle-glyph" data-theme-glyph aria-hidden="true"></span></button>
+        <button class="btn-ghost" id="login-btn" aria-haspopup="dialog">Login</button>
+        <button class="btn-primary" id="start-now-btn" aria-haspopup="dialog">
+          Start Now
+          <span class="btn-primary-icon" aria-hidden="true">→</span>
+        </button>
+        <button class="nav-mobile-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="landing-nav-links">
+          <div class="hamburger"><span></span><span></span></div>
+        </button>
+      </div>
+    </nav>
+    <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-h1">
+      <div class="hero-orbs" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+      </div>
+      <div class="hero-grid" aria-hidden="true"></div>
+      <div class="hero-eyebrow" aria-hidden="true">
+        <span class="hero-eyebrow-dot"></span>
+        Enterprise Decision Intelligence
+      </div>
+      <h1 class="hero-h1" id="hero-h1">
+        <span class="hero-h1-line">Engineering decisions,</span>
+        <span class="hero-h1-line hero-h1-accent">powered by complete project context.</span>
+      </h1>
+      <p class="hero-sub">
+        SYNASE AI connects product requirements, repositories, architecture, testing, and DevOps telemetry to synthesize structured, validated engineering decisions.
+      </p>
+      <div class="hero-ctas">
+        <button class="btn-hero-primary" id="hero-start-btn" aria-haspopup="dialog">
+          Start Analysis
+          <span class="icon" aria-hidden="true">→</span>
+        </button>
+        <a href="#about" class="btn-hero-secondary">
+          Explore Architecture
+        </a>
+      </div>
+
+      <!-- App Preview Mockup (Clickable to Console) -->
+      <div class="hero-preview">
+        <a href="app.html#/app/chat" class="hero-preview-link" title="Launch SYNASE AI Workspace Console" aria-label="Explore SYNASE AI Decision Intelligence Console">
+          <div class="hero-preview-wrap">
+            <div class="hero-preview-bar">
+              <span class="dot dot-r"></span>
+              <span class="dot dot-y"></span>
+              <span class="dot dot-g"></span>
+              <span class="hero-preview-url">app.synase.ai · Decision Intelligence Console</span>
+            </div>
+            <div class="hero-preview-content">
+              <div class="preview-sidebar">
+                <div class="preview-brand">
+                  <div class="preview-brand-mark">
+                    <svg viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <g stroke-linejoin="round" stroke-linecap="round">
+                        <path d="M50 6 L92 78 L76 78 L42 20 L50 6 Z" fill="#3279f9" fill-opacity="0.3" stroke="#3279f9" stroke-width="2.5" />
+                        <path d="M92 78 L8 78 L16 64 L76 64 L76 78 Z" fill="#1a73e8" fill-opacity="0.35" stroke="#1a73e8" stroke-width="2.5" />
+                        <path d="M8 78 L50 6 L58 20 L24 78 L8 78 Z" fill="#45474d" fill-opacity="0.3" stroke="#45474d" stroke-width="2.5" />
+                        <path d="M42 20 L58 20 L30 68 L74 68 L66 54 L38 54 L50 34" stroke="#ffffff" stroke-width="1.4" stroke-opacity="0.8" fill="none" />
+                      </g>
+                    </svg>
+                  </div>
+                  <span class="preview-brand-text">SYNASE AI</span>
+                </div>
+                <div class="preview-nav-item act"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard</div>
+                <div class="preview-nav-item"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-kanban" aria-hidden="true"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="M8 10v4"/><path d="M12 10v2"/><path d="M16 10v6"/></svg> Projects</div>
+                <div class="preview-nav-item"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-branch" aria-hidden="true"><path d="M15 6a9 9 0 0 0-9 9V3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/></svg> Repository</div>
+                <div class="preview-nav-item"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-messages-square" aria-hidden="true"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v5Z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/></svg> Analysis</div>
+                <div class="preview-nav-item"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-network" aria-hidden="true"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg> MCP V2</div>
+                <div class="preview-nav-item"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> Reports</div>
+              </div>
+              <div class="preview-main">
+                <div class="preview-header">Workspace dashboard</div>
+                <div class="preview-metrics">
+                  <div class="preview-metric"><div class="preview-metric-val">5</div><div class="preview-metric-lbl">Active projects</div></div>
+                  <div class="preview-metric"><div class="preview-metric-val" style="color:var(--positive)">2</div><div class="preview-metric-lbl">Runs active</div></div>
+                  <div class="preview-metric"><div class="preview-metric-val" style="color:var(--warning)">1</div><div class="preview-metric-lbl">Waiting</div></div>
+                  <div class="preview-metric"><div class="preview-metric-val">2</div><div class="preview-metric-lbl">Approvals</div></div>
+                </div>
+                <div class="preview-cards">
+                  <div class="preview-card">
+                    <div class="preview-card-head">Active Projects</div>
+                    <div class="preview-row w80"></div>
+                    <div class="preview-row w60"></div>
+                    <div class="preview-row w45"></div>
+                    <div style="margin-top:10px;display:flex;gap:6px">
+                      <span class="preview-status active">● active</span>
+                      <span class="preview-status warn">● paused</span>
+                      <span class="preview-status info">● draft</span>
+                    </div>
+                  </div>
+                  <div class="preview-card">
+                    <div class="preview-card-head">Integration</div>
+                    <div class="preview-row w80" style="margin-bottom:8px"></div>
+                    <div class="preview-row w60" style="margin-bottom:8px"></div>
+                    <div class="preview-row w45"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- MARQUEE / LOGO LOOP (React Bits) -->
+    <div class="marquee-section" aria-label="Integrations">
+      <p class="marquee-label">Built to connect with your engineering stack</p>
+      <div id="logo-loop-root" class="logoloop-container" role="region" aria-label="Engineering integrations carousel"></div>
+    </div>
+
+    <!-- FEATURES BENTO -->
+    <section class="features" id="features" aria-labelledby="features-h2">
+      <div class="section-inner">
+        <div class="reveal">
+          <span class="section-eyebrow">Engineering Intelligence Layers</span>
+          <h2 class="section-h2" id="features-h2">Built for architects, engineering<br>leaders, <em>and product teams</em></h2>
+          <p class="section-sub">Seven coordinated AI layers connect your specifications, codebase, and cloud deployments into a single decision engine.</p>
+        </div>
+        <div class="bento reveal">
+          <div class="bento-card bento-wide">
+            <div class="bento-icon blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cpu" aria-hidden="true"><path d="M12 20v2"/><path d="M12 2v2"/><path d="M17 20v2"/><path d="M17 2v2"/><path d="M2 12h2"/><path d="M2 17h2"/><path d="M2 7h2"/><path d="M20 12h2"/><path d="M20 17h2"/><path d="M20 7h2"/><path d="M7 20v2"/><path d="M7 2v2"/><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg></div>
+            <h3 class="bento-h3">Context-Aware Decision Engine</h3>
+            <p class="bento-p">Ingests requirements, repositories, architecture docs, and test suites. Every decision is traced to source evidence — never hallucinated.</p>
+            <div class="bento-tags">
+              <span class="bento-tag highlight">PRD Sync</span>
+              <span class="bento-tag highlight">Repo Context</span>
+              <span class="bento-tag">Multi-Model</span>
+              <span class="bento-tag">TOON Protocol</span>
+            </div>
+            <div class="bento-visual">
+              <div class="bento-code">
+                <span class="code-line"><span class="code-c">// Decision trace — 100% evidence-linked</span></span>
+                <span class="code-line"><span class="code-k">const</span> decision = <span class="code-k">await</span> synase.<span class="code-s">analyze</span>({</span>
+                <span class="code-line">  context: [<span class="code-s">"prd_v3.pdf"</span>, <span class="code-s">"src/core"</span>],</span>
+                <span class="code-line">  validate: <span class="code-v">true</span>, confidence: <span class="code-v">0.92</span></span>
+                <span class="code-line">});</span>
+              </div>
+            </div>
+          </div>
+          <div class="bento-card bento-narrow">
+            <div class="bento-icon cyan"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-branch" aria-hidden="true"><path d="M15 6a9 9 0 0 0-9 9V3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/></svg></div>
+            <h3 class="bento-h3">Repository Intelligence</h3>
+            <p class="bento-p">Connect GitHub, GitLab, or Bitbucket. Get instant architectural context — dependencies, test coverage, deployment risk — before any change lands in main.</p>
+            <div class="bento-tags">
+              <span class="bento-tag">Zero Source Stored</span>
+              <span class="bento-tag highlight">Scan in Seconds</span>
+            </div>
+            <div class="bento-visual bento-repo-visual">
+              <div class="repo-visual-header">
+                <div class="repo-visual-branch">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-branch" aria-hidden="true"><path d="M15 6a9 9 0 0 0-9 9V3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/></svg>
+                  <span>main</span>
+                  <span class="repo-pulse-dot" aria-hidden="true"></span>
+                </div>
+                <div class="repo-visual-commit"><span class="repo-commit-hash">9f4a82b</span> · 12ms</div>
+                <div class="repo-visual-status"><span class="status-indicator"></span>Synced</div>
+              </div>
+              <div class="repo-visual-grid">
+                <div class="repo-stat-card">
+                  <div class="repo-stat-label">AST Trace</div>
+                  <div class="repo-stat-val text-cyan">99.4%</div>
+                  <div class="repo-stat-sub">4,812 nodes</div>
+                </div>
+                <div class="repo-stat-card">
+                  <div class="repo-stat-label">CVE Policy</div>
+                  <div class="repo-stat-val text-green">0 Alerts</div>
+                  <div class="repo-stat-sub">Pass SLA L3</div>
+                </div>
+                <div class="repo-stat-card">
+                  <div class="repo-stat-label">Retention</div>
+                  <div class="repo-stat-val text-purple">0 KB</div>
+                  <div class="repo-stat-sub">Ephemeral hash</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bento-card bento-third">
+            <div class="bento-icon purple"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-boxes" aria-hidden="true"><path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"/><path d="m7 16.5-4.74-2.85"/><path d="m7 16.5 5-3"/><path d="M7 16.5v5.17"/><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"/><path d="m17 16.5-5-3"/><path d="m17 16.5 4.74-2.85"/><path d="M17 16.5v5.17"/><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"/><path d="M12 8 7.26 5.15"/><path d="m12 8 4.74-2.85"/><path d="M12 13.5V8"/></svg></div>
+            <h3 class="bento-h3">Product Intelligence</h3>
+            <p class="bento-p">Turn requirements into prioritized, actionable product decisions connected directly to your codebase.</p>
+          </div>
+          <div class="bento-card bento-third">
+            <div class="bento-icon green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></div>
+            <h3 class="bento-h3">DevOps Telemetry</h3>
+            <p class="bento-p">Scan for hidden dependencies, slow database calls, and deployment risks before merging to main.</p>
+          </div>
+          <div class="bento-card bento-third">
+            <div class="bento-icon blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>
+            <h3 class="bento-h3">Human Approval Layer</h3>
+            <p class="bento-p">Every high-impact decision routes through an explicit human approval gate. Authorization is recorded, auditable, and never assumed.</p>
+          </div>
+          <div class="bento-card bento-half">
+            <div class="bento-icon cyan"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-network" aria-hidden="true"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg></div>
+            <h3 class="bento-h3">MCP V2 Runtime</h3>
+            <p class="bento-p">Full orchestration trace for every AI model interaction. Inspect every tool call, latency, token use, and decision payload in real time.</p>
+            <div class="bento-tags">
+              <span class="bento-tag highlight">Full Traceability</span>
+              <span class="bento-tag">Multi-Agent</span>
+              <span class="bento-tag">Server Discovery</span>
+            </div>
+          </div>
+          <div class="bento-card bento-half">
+            <div class="bento-icon purple"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-workflow" aria-hidden="true"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg></div>
+            <h3 class="bento-h3">Knowledge Graph</h3>
+            <p class="bento-p">Persistent, queryable memory across every project artifact. Context retrieval that gets smarter with every analysis run.</p>
+            <div class="bento-tags">
+              <span class="bento-tag">Vector Retrieval</span>
+              <span class="bento-tag highlight">Semantic Search</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT LAYER -->
+    <section id="product" class="demo-section" aria-labelledby="product-h2">
+      <div class="section-inner">
+        <div class="demo-grid">
+          <div class="reveal">
+            <span class="section-eyebrow">Product Intelligence · Smart Specification Review</span>
+            <h2 class="section-h2" id="product-h2">Turn requirements into<br><em>actionable product decisions.</em></h2>
+            <p class="section-sub">Review product requirements, prioritize features, and plan clearer roadmaps connected directly to your codebase.</p>
+            <p style="font-size:12px;color:var(--subtle);margin-top:-40px">Works with your PRDs, Jira epics, and product specs — 100% verified against real code</p>
+          </div>
+          <div class="reveal" style="transition-delay:0.15s">
+            <div class="demo-panel">
+              <div class="demo-panel-header">
+                <span class="demo-panel-title">Upload a Product Specification</span>
+                <span class="demo-badge mock">Mock Adapter</span>
+              </div>
+              <div class="demo-panel-body">
+                <div class="demo-field-group">
+                  <div style="border:1px dashed var(--accent-line);border-radius: 0;padding:32px;text-align:center;background:var(--accent-wash-0)">
+                    <div style="margin-bottom:12px;color:var(--primary);display:flex;justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud" aria-hidden="true"><path d="M12 13v8"/><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17 4-4 4 4"/></svg></div>
+                    <div style="font-size:13px;font-weight:700;margin-bottom:6px">Drop files here or click to browse</div>
+                    <div style="font-size:11px;color:var(--muted)">Supports PRD files, Word documents, PDFs, or syncs directly with Jira &amp; Linear</div>
+                    <div style="display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+                      <span class="demo-badge mock">PRD (.md, .docx)</span>
+                      <span class="demo-badge mock">BRD Document</span>
+                      <span class="demo-badge mock">PDF Specification</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="demo-checks">
+                  <div class="demo-check"><span class="demo-check-box"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Check against current codebase</div>
+                  <div class="demo-check"><span class="demo-check-box"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Check performance &amp; reliability targets</div>
+                  <div class="demo-check"><span class="demo-check-box"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Catch missing edge cases</div>
+                </div>
+                <button class="demo-cta-btn" data-auth="open">Analyze Requirements →</button>
+                <p class="demo-note">Open Decision Console →</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEVOPS LAYER -->
+    <section id="devops" aria-labelledby="devops-h2">
+      <div class="section-inner">
+        <div class="demo-grid" style="direction:rtl">
+          <div class="reveal" style="direction:ltr">
+            <span class="section-eyebrow">DevOps Intelligence · Smart Codebase &amp; Deployment Review</span>
+            <h2 class="section-h2" id="devops-h2">Understand your repository.<br><em>Identify engineering risk.</em></h2>
+            <p class="section-sub">Scan your code, test suites, and deployment setups automatically. Catch hidden dependencies, slow database calls, and deployment risks before merging to main.</p>
+            <p style="font-size:12px;color:var(--subtle);margin-top:-40px">Full codebase scans in seconds · Zero source code stored · Works with Kubernetes &amp; Docker</p>
+          </div>
+          <div class="reveal" style="direction:ltr;transition-delay:0.15s">
+            <div class="demo-panel">
+              <div class="demo-panel-header">
+                <span class="demo-panel-title">Analyze a Code Repository</span>
+                <span class="demo-badge online">Engine Online</span>
+              </div>
+              <div class="demo-panel-body">
+                <div class="demo-field-group">
+                  <div class="demo-field">
+                    <label>Repository Address (HTTPS or SSH)</label>
+                    <div class="demo-field-input active">github.com/synase-ai/core-platform</div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div class="demo-field">
+                      <label>Target Branch</label>
+                      <div class="demo-field-input">main (commit #9f4a82b)</div>
+                    </div>
+                    <div class="demo-field">
+                      <label>Analysis Scope</label>
+                      <div class="demo-field-input">Full Repository &amp; Dependencies</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="demo-checks">
+                  <div class="demo-check"><span class="demo-check-box"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Check Kubernetes &amp; Cloud Configs</div>
+                  <div class="demo-check"><span class="demo-check-box"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Check Against Open Pull Requests</div>
+                  <div class="demo-check"><span class="demo-check-box"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Simulate Server Failure &amp; Outages</div>
+                  <div class="demo-check"><span class="demo-check-box"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>Test Code Reliability &amp; Edge Cases</div>
+                </div>
+                <button class="demo-cta-btn" data-auth="open">Analyze Repository →</button>
+                <p class="demo-note">Scanned in secure memory. Zero source code is stored.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT / PHILOSOPHY -->
+    <section id="about" class="layers" aria-labelledby="about-h2">
+      <div class="section-inner">
+        <div class="reveal" style="text-align:center;margin-bottom:64px">
+          <span class="section-eyebrow">Architecture &amp; Research Team</span>
+          <h2 class="section-h2" id="about-h2">Synchronized AI for<br><em>Engineering Decisions.</em></h2>
+          <p class="section-sub" style="margin:0 auto">SYNASE AI connects product planning with technical implementation, closing the gap between what teams want to build and how it should be engineered.</p>
+        </div>
+        <div class="philosophy-grid reveal">
+          <div class="philosophy-card">
+            <span class="section-eyebrow" style="margin-bottom:14px">Core Philosophy</span>
+            <h3>Why This Is Not a Chatbot</h3>
+            <p>A standard chatbot gives quick text answers without understanding your codebase. SYNASE AI is different because it connects directly to your requirements, code repositories, and cloud setup to deliver structured, verified engineering decisions.</p>
+            <div class="chips">
+              <span class="chip">Clear Explanations</span>
+              <span class="chip">Code-Verified</span>
+              <span class="chip">Multi-Model Agreement</span>
+            </div>
+          </div>
+          <div class="philosophy-card">
+            <span class="section-eyebrow" style="margin-bottom:14px">Technical Highlight</span>
+            <h3>Fast &amp; Compact Data Exchange (TOON)</h3>
+            <p>Uses a specialized compact data format (TOON) to communicate between AI models and review tools. This cuts prompt overhead by up to 64% while keeping validation fast, accurate, and completely reliable.</p>
+            <div class="chips">
+              <span class="chip">64% Less Overhead</span>
+              <span class="chip">Faster Responses</span>
+              <span class="chip">Zero Duplication</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:80px" class="reveal">
+          <h3 class="section-h2" style="text-align:center;font-size:clamp(1.8rem,3vw,2.4rem);margin-bottom:12px">How the System Works Together</h3>
+          <p style="text-align:center;color:var(--muted);margin-bottom:0">Seven coordinated components connect your specifications, codebase, and cloud deployments.</p>
+        </div>
+        <div class="blueprint-steps reveal" style="transition-delay:0.15s">
+          <div class="blueprint-step">
+            <div class="blueprint-badge"><span class="blueprint-badge-dot"></span>Input Ingestion</div>
+            <h4>User Request &amp; Specifications</h4>
+            <p>Validates incoming tickets and requests. PRDs, Jira specs, and uploaded documents enter the decision loop.</p>
+            <div class="blueprint-step-arrow" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </div>
+          </div>
+          <div class="blueprint-step">
+            <div class="blueprint-badge"><span class="blueprint-badge-dot"></span>Security Perimeter</div>
+            <h4>Secure API Gateway</h4>
+            <p>All requests pass through a typed, idempotency-safe gateway. Zero source code is transmitted or stored.</p>
+            <div class="blueprint-step-arrow" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </div>
+          </div>
+          <div class="blueprint-step">
+            <div class="blueprint-badge"><span class="blueprint-badge-dot"></span>Orchestration Core</div>
+            <h4>Decision Orchestrator</h4>
+            <p>Routes tasks to specialized models — product analyst, DevOps reviewer, test validator — with full MCP trace.</p>
+            <div class="blueprint-step-arrow" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </div>
+          </div>
+          <div class="blueprint-step">
+            <div class="blueprint-badge"><span class="blueprint-badge-dot"></span>Reasoning Engines</div>
+            <h4>Product &amp; DevOps Reviewers</h4>
+            <p>Specialized models analyze product requirements, codebase architecture, and deployment configurations in parallel.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="demo-section" aria-labelledby="contact-h2">
+      <div class="section-inner">
+        <div style="text-align:center;margin-bottom:64px" class="reveal">
+          <span class="section-eyebrow">Get in Touch with the Team</span>
+          <h2 class="section-h2" id="contact-h2">Let's talk about your<br><em>engineering workflow.</em></h2>
+          <p class="section-sub" style="margin:0 auto">Have questions about SYNASE AI, multi-agent reviews, research collaboration, or private enterprise deployments?</p>
+          <div class="cta-badges" style="justify-content:center;margin-top:24px">
+            <span class="cta-badge">Highest Security Standards (SLA L3)</span>
+            <span class="cta-badge">Zero Source Code Stored</span>
+            <span class="cta-badge">Quick Support (&lt; 24 Hours)</span>
+          </div>
+        </div>
+        <div class="contact-grid reveal">
+          <div>
+            <h3 class="section-h2" style="font-size:1.6rem;margin-bottom:8px">How Can We Help?</h3>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:24px">Select a category or fill out the form to route your message to the right specialist.</p>
+            <div class="contact-topics" role="radiogroup" aria-label="Inquiry Categories">
+              <div class="contact-topic active" role="radio" aria-checked="true" tabindex="0" data-topic="Product Evaluation &amp; Demo">
+                <div class="contact-topic-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-presentation" aria-hidden="true"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg></div>
+                <div><h4>Product Evaluation &amp; Demo</h4><p>Live walkthroughs, private cloud installations, custom review pipelines, and enterprise support.</p></div>
+              </div>
+              <div class="contact-topic" role="radio" aria-checked="false" tabindex="0" data-topic="Research &amp; Academic Collaboration">
+                <div class="contact-topic-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flask-conical" aria-hidden="true"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg></div>
+                <div><h4>Research &amp; Academic Collaboration</h4><p>Academic partnerships, multi-agent consensus research, and open protocol integrations.</p></div>
+              </div>
+              <div class="contact-topic" role="radio" aria-checked="false" tabindex="0" data-topic="Technical Support">
+                <div class="contact-topic-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div>
+                <div><h4>Technical Support</h4><p>Connecting repositories, configuring CI/CD webhooks, and troubleshooting cloud integrations.</p></div>
+              </div>
+              <div class="contact-topic" role="radio" aria-checked="false" tabindex="0" data-topic="General Inquiries">
+                <div class="contact-topic-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square" aria-hidden="true"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></svg></div>
+                <div><h4>General Inquiries</h4><p>Open-source integrations, security audit, partnership opportunities, and general questions.</p></div>
+              </div>
+            </div>
+          </div>
+          <form class="contact-form-card reveal" id="contact-form" action="https://formsubmit.co/satyam8076singh@gmail.com" method="POST" style="transition-delay:0.15s" novalidate>
+            <h3>Send an Engineering Inquiry</h3>
+            <p style="font-size:12px;color:var(--muted);margin-top:-18px;margin-bottom:20px;">Direct delivery via FormSubmit encrypted gateway with priority engineer routing.</p>
+            
+            <!-- Honeypot spam defense -->
+            <input type="text" name="_honey" style="display:none !important;" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_template" value="table" />
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="contact-name">Full Name <span aria-hidden="true">*</span></label>
+                <input type="text" id="contact-name" name="name" required placeholder="Alex Turner" autocomplete="name" />
+              </div>
+              <div class="form-field">
+                <label for="contact-email">Work Email <span aria-hidden="true">*</span></label>
+                <input type="email" id="contact-email" name="email" required placeholder="alex@engineering.acme.com" autocomplete="email" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="contact-organization">Organization (Optional)</label>
+                <input type="text" id="contact-organization" name="organization" placeholder="Acme Systems Corp" autocomplete="organization" />
+              </div>
+              <div class="form-field">
+                <label for="contact-inquiry-type">Inquiry Type <span aria-hidden="true">*</span></label>
+                <select id="contact-inquiry-type" name="inquiry_type" required>
+                  <option value="" disabled>Select an inquiry category…</option>
+                  <option value="Product Evaluation &amp; Demo" selected>Product Evaluation &amp; Demo</option>
+                  <option value="Research &amp; Academic Collaboration">Research &amp; Academic Collaboration</option>
+                  <option value="Technical Support">Technical Support</option>
+                  <option value="General Inquiries">General Inquiries</option>
+                  <option value="Other">Other Specialized Request</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="contact-subject">Subject <span aria-hidden="true">*</span></label>
+              <input type="text" id="contact-subject" name="subject" required placeholder="e.g. Evaluating SYNASE AI for microservices architecture" />
+            </div>
+            <div class="form-field">
+              <label for="contact-message">Message <span aria-hidden="true">*</span></label>
+              <textarea id="contact-message" name="message" required minlength="10" maxlength="3000" rows="4" placeholder="Detail your engineering requirements, technical questions, or integration timeline (10–3,000 characters)…"></textarea>
+            </div>
+            <p class="form-note">☑ Inquiry is processed in secure memory and transmitted via FormSubmit. Zero proprietary source code is retained.</p>
+            <div id="contact-feedback" class="contact-feedback-box" role="status" aria-live="polite"></div>
+            <button class="form-submit" type="submit">Send Engineering Inquiry →</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA BAND -->
+    <section class="cta-band" aria-labelledby="cta-h2">
+      <div class="section-inner">
+        <div class="reveal">
+          <h2 id="cta-h2">Start making decisions<br><em>with evidence</em>, not guesswork.</h2>
+          <p>Connect your first repository in under 2 minutes. No source code leaves your environment.</p>
+          <div class="hero-ctas">
+            <button class="btn-hero-primary" data-route-to="app.html#/app/chat">
+              Start Free Analysis
+              <span class="icon" aria-hidden="true">→</span>
+            </button>
+            <a href="#contact" class="btn-hero-secondary">Talk to the Team</a>
+          </div>
+          <div class="cta-badges">
+            <span class="cta-badge">No credit card required</span>
+            <span class="cta-badge">SLA L3 Security</span>
+            <span class="cta-badge">Zero source code stored</span>
+            <span class="cta-badge">SOC2 ready</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="footer-logo-mark">
+              <svg viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <g stroke-linejoin="round" stroke-linecap="round">
+                  <path d="M50 6 L92 78 L76 78 L42 20 L50 6 Z" fill="#3279f9" fill-opacity="0.3" stroke="#3279f9" stroke-width="2.5" />
+                  <path d="M92 78 L8 78 L16 64 L76 64 L76 78 Z" fill="#1a73e8" fill-opacity="0.35" stroke="#1a73e8" stroke-width="2.5" />
+                  <path d="M8 78 L50 6 L58 20 L24 78 L8 78 Z" fill="#45474d" fill-opacity="0.3" stroke="#45474d" stroke-width="2.5" />
+                  <path d="M42 20 L58 20 L30 68 L74 68 L66 54 L38 54 L50 34" stroke="#ffffff" stroke-width="1.4" stroke-opacity="0.8" fill="none" />
+                </g>
+              </svg>
+            </div>
+            SYNASE AI
+          </div>
+          <p class="footer-tagline">Decision intelligence for engineers who ship with confidence.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Product</h5>
+          <div class="footer-links">
+            <a href="#product">Product Layer</a>
+            <a href="#devops">DevOps Layer</a>
+            <a href="#features">Features</a>
+            <a href="#about">Architecture</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <div class="footer-links">
+            <a href="#about">About Us</a>
+            <a href="#contact">Contact</a>
+            <a href="#">Research</a>
+            <a href="#">Careers</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Legal</h5>
+          <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Security</a>
+            <a href="#">SLA</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 SYNASE AI. All rights reserved.</span>
+        <span>Decision intelligence platform · Phase 0–12 build</span>
+      </div>
+    </footer>
+
+    <!-- AUTH OVERLAY (Login / Register) -->
+    <div class="auth-overlay" id="auth-overlay" role="dialog" aria-modal="true" aria-label="Sign in to SYNASE AI">
+      <div class="auth-modal" id="auth-modal">
+        <button class="auth-modal-close" data-auth="close" aria-label="Close">×</button>
+        <div class="auth-modal-brand">
+          <div class="auth-modal-brand-mark">
+            <svg viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <g stroke-linejoin="round" stroke-linecap="round">
+                <path d="M50 6 L92 78 L76 78 L42 20 L50 6 Z" fill="#3279f9" fill-opacity="0.3" stroke="#3279f9" stroke-width="2.5" />
+                <path d="M92 78 L8 78 L16 64 L76 64 L76 78 Z" fill="#1a73e8" fill-opacity="0.35" stroke="#1a73e8" stroke-width="2.5" />
+                <path d="M8 78 L50 6 L58 20 L24 78 L8 78 Z" fill="#45474d" fill-opacity="0.3" stroke="#45474d" stroke-width="2.5" />
+                <path d="M42 20 L58 20 L30 68 L74 68 L66 54 L38 54 L50 34" stroke="#ffffff" stroke-width="1.4" stroke-opacity="0.8" fill="none" />
+              </g>
+            </svg>
+          </div>
+          <span>SYNASE AI</span>
+        </div>
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" role="tab" data-auth-tab="login">Sign in</button>
+          <button class="auth-tab" role="tab" data-auth-tab="register">Create account</button>
+        </div>
+
+        <!-- Login -->
+        <div class="auth-form-panel active" id="auth-panel-login">
+          <!-- Enterprise SSO -->
+          <div class="auth-sso-group">
+            <button type="button" class="sso-btn" data-sso="github" aria-label="Continue with GitHub">
+              <svg class="sso-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              <span>GitHub</span>
+            </button>
+            <button type="button" class="sso-btn" data-sso="google" aria-label="Continue with Google Workspace">
+              <svg class="sso-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Google SSO</span>
+            </button>
+          </div>
+
+          <div class="auth-divider">
+            <span>or work email</span>
+          </div>
+
+          <form data-auth-submit="login">
+            <div class="auth-field">
+              <label for="login-email">Work Email</label>
+              <input id="login-email" name="email" type="email" autocomplete="email" required value="alex.turner@company.com" placeholder="name@company.com" />
+            </div>
+            <div class="auth-field">
+              <label for="login-password">Password</label>
+              <div class="password-input-wrap">
+                <input id="login-password" name="password" type="password" autocomplete="current-password" minlength="8" required value="••••••••••••" placeholder="Min. 8 characters" />
+                <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-toggle-password="login-password">
+                  <svg class="eye-icon eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg class="eye-icon eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="auth-error" id="login-error"></div>
+            <button class="auth-submit" type="submit" id="login-submit">Sign in to Workspace →</button>
+          </form>
+
+          <div class="auth-divider">
+            <span>or instant sandbox</span>
+          </div>
+
+          <button type="button" class="auth-demo-btn-modal" data-route-to="app.html#/app/chat">Demo Sign-in (ABESIT / Platform Prj) →</button>
+          <div class="auth-links">
+            <a href="?route=/auth/register" data-auth-tab-name="register">Create account</a>
+            <a href="app.html#/auth/login">Full login page</a>
+          </div>
+        </div>
+
+        <!-- Register -->
+        <div class="auth-form-panel" id="auth-panel-register">
+          <form data-auth-submit="register">
+            <div class="auth-field">
+              <label for="reg-name">Full name</label>
+              <input id="reg-name" name="name" autocomplete="name" required placeholder="Alex Turner" />
+            </div>
+            <div class="auth-field">
+              <label for="reg-email">Work Email</label>
+              <input id="reg-email" name="email" type="email" autocomplete="email" required placeholder="alex@company.com" />
+            </div>
+            <div class="auth-field">
+              <label for="reg-password">Password</label>
+              <div class="password-input-wrap">
+                <input id="reg-password" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="Min. 8 characters" />
+                <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-toggle-password="reg-password">
+                  <svg class="eye-icon eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg class="eye-icon eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="auth-error" id="register-error"></div>
+            <button class="auth-submit" type="submit" id="register-submit">Create account →</button>
+          </form>
+          <div class="auth-links">
+            <a href="?route=/auth/login" data-auth-tab-name="login">Sign in instead</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./src/home/landing/landing.js"></script>
+    <script>
+      if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>

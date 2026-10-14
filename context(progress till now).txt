@@ -1,0 +1,402 @@
+================================================================================
+              SYNASE AI — PROJECT CONTEXT (PROGRESS TILL NOW)
+================================================================================
+Snapshot date:   2026-10-14
+Version:         0.12.0  (Phases 0–12 complete + Settings + Landing/Auth 4 Revamp + Curved Dropdowns & Work Suite)
+Repo:            https://github.com/satyam022028singh/Synase-ai   (branch: main)
+Local root:      C:\Users\satya\OneDrive\Desktop\SYNASE AI REBUILD\Synase-ai
+Companion docs:  ..\ALL_APIs.TXT        (120-endpoint API catalog, source of truth, 103 tests passing)
+                 ..\context_for_ui.txt  (older UI revamp brief / Stitch mapping)
+                 Synase-ai\ARCHITECTURE.md, README.md, STARTUP_GUIDE.md
+Purpose of file: Hand-off context so that the NEXT requirement — a full revamp
+                 of the PRODUCT INTELLIGENCE LAYER (UI + API) — is built in the
+                 SAME format/conventions already used throughout the project.
+
+--------------------------------------------------------------------------------
+1. WHAT SYNASE AI IS
+--------------------------------------------------------------------------------
+SYNASE AI is an AI decision-intelligence console for software teams. A workspace
+holds projects; each project ingests a repository + multimodal inputs, runs
+(mocked) analysis workflows through an MCP V2 runtime, and produces two
+intelligence layers:
+
+  * PRODUCT layer  — requirements, prioritisation, strategy, roadmap
+  * DEVOPS layer   — architecture, quality, security, risk, deps, testing, deploy
+
+Outputs flow into decision reports and human-in-the-loop approvals. Everything
+is currently MOCK: no model, tool, third-party API or pipeline is ever invoked.
+Suggestions are always visibly separated from confirmed state ("provenance").
+
+--------------------------------------------------------------------------------
+2. TECH STACK & COMMANDS
+--------------------------------------------------------------------------------
+- Zero-dependency vanilla ES modules. No framework, no bundler, no npm deps.
+- Views are functions returning HTML template strings.
+- Styling: plain CSS with semantic design tokens (light + dark).
+- Tests: node:test contract tests (103 passing at last verification).
+
+  npm run dev      -> node scripts/serve.mjs   (local static server)
+  npm run build    -> node scripts/build.mjs   (copies to dist/, incl. logo/favicons)
+  npm test         -> node --test test/*.test.mjs
+  npm run brain    -> regenerates knowledge graph in brain/ (extract + build)
+  npm run brain:query
+
+Entry points:
+  index.html   -> redirect
+  landing.html -> marketing landing page (+ auth modal)
+  app.html     -> console shell; loads src/app/main.js; inline <head> script
+                  sets data-theme before first paint (no theme flash)
+
+CI: .github/ workflows validate each phase (phase11/12-validation.json).
+
+--------------------------------------------------------------------------------
+3. ARCHITECTURE (the "format" all new work must follow)
+--------------------------------------------------------------------------------
+Strict three-layer stack:
+
+    app/          shell, router, bootstrap, single event listener  (composition root)
+      |
+    domain/       home · product · devops · mcp · context · outputs · integrations · work
+      |
+    shared/       api · state · components · services · utils · types   (leaf layer)
+
+Logical request flow (six layers):
+  Route -> Page composition -> View template -> Domain API facade
+        -> Shared adapter (mock | live) -> Transport (/api/v1/...)
+
+HARD RULES
+  1. A domain NEVER imports another domain (product/ cannot import devops/ etc.).
+  2. shared/ imports nothing outside itself.
+  3. A domain may import app/paths.js (route table) — the only sanctioned exception.
+  4. ONE router (src/app/router.js) and ONE delegated listener set
+     (click/change/input/submit) in src/app/main.js.
+  5. Views never attach listeners. They express intent via attributes:
+       data-route="/app/..."   -> navigate
+       data-action="..."       -> handled in app/main.js, mutate state, render()
+       data-theme-toggle       -> shared/services/theme.js
+  6. Views never call the API. app/main.js calls domain facades and writes
+     results into the store; views read from `state`.
+  7. Every interpolated value is escaped (escapeHtml). Use shared ui helpers.
+  8. Mutating calls REQUIRE { idempotencyKey: createIdempotencyKey() }.
+  9. All API methods return envelopes: { data } or { data, meta:{page,pageSize,total} }.
+     Errors: ApiError { code, message, status, requestId, details }.
+
+Historical note: old src/app.js, phase11.js, phase12.js (three racing renderers
+via MutationObserver) were REMOVED and folded into the single router. Old
+data-p11-*/data-p12-* attributes were normalised to data-route/data-action.
+
+--------------------------------------------------------------------------------
+4. FOLDER MAP (src/)
+--------------------------------------------------------------------------------
+src/
+├── app/
+│   ├── main.js          bootstrap, hydrate(), loadRouteData(), all event handling
+│   ├── router.js        the ONLY route -> page mapping (renderPage())
+│   ├── shell.js         sidebar, topbar, workspace/project switchers, toast
+│   ├── paths.js         routes{}, projectRoute(), currentPath(), navigate(), isActive()
+│   ├── auth.js          login / register / forgot screens
+│   └── actions/work.js  Chat & Work controller (render/toast injected)
+├── home/
+│   ├── landing/landing.js
+│   ├── workspace/
+│   │   ├── api/index.js
+│   │   ├── dashboard/{view.js, api.js, types.d.ts}   (/app/dashboard, ex-phase12)
+│   │   └── pages/  projects · repository · inputs · analysis · runs · members
+│   └── settings/pages/index.js
+├── product/                     <<< TARGET OF THE UPCOMING REVAMP
+│   ├── pages/index.js           requirementsView, prioritizationView,
+│   │                            strategyView, roadmapView, productIntelligencePage
+│   └── api/index.js             productApi facade
+├── devops/{pages, components (findingsTable), api}
+├── mcp/{pages, api}             (isolated; must not import product/devops)
+├── context/{pages, api}         explorer · memory · retrieval history · knowledge graph
+├── outputs/{pages, api}         reports · report detail · approval queue
+├── integrations/{pages, api/client.js, api/types.d.ts}   (ex-phase11)
+├── work/{constants.js, pages, components, api}           Chat & Work surface
+├── shared/
+│   ├── api/  index.js · db.js (fixtures) · mock.js (~78 methods) · live.js (fetch)
+│   │         errors.js · idempotency.js · redaction.js
+│   ├── components/ui.js   escapeHtml, status, pageHeader, metricCard, provenance,
+│   │                      notFound, loading, …
+│   ├── state/store.js     single plain-object store
+│   ├── services/theme.js  light/dark + localStorage + prefers-color-scheme
+│   ├── utils/format.js
+│   └── types/types.d.ts   domain models
+├── styles/
+│   ├── app.css                         tokens + shell + all components
+│   ├── home/dashboard.css
+│   ├── integrations/integrations.css
+│   ├── landing/landing.css
+│   └── work/work.css                   scoped .work-*
+└── assets/   Penrose-triangle logo SVGs, favicon.svg
+
+Other: scripts/ (build, serve, brain, generate-logo), test/ (api, phase11,
+phase11-extra, phase12 .test.mjs), brain/ (knowledge graph), LOGO/ (source logo).
+
+--------------------------------------------------------------------------------
+5. ROUTES (declared in src/app/router.js)
+--------------------------------------------------------------------------------
+/auth/login | /auth/register | /auth/forgot        (no shell)
+/app/chat[/:id]                                   (standalone, no shell)
+/app/dashboard                                    Work = decision dashboard
+/app/projects, /app/projects/create
+/app/workspaces/:ws/members, /app/workspaces/:ws/settings
+/app/projects/:id/{overview|repository|inputs|analysis|runs|settings|integrations}
+/app/mcp[/overview|executions|tools|models|discovery]
+/app/intelligence/product        <<< current Product Intelligence page (tabbed)
+/app/intelligence/devops
+/app/context/{overview|memory|history}, /app/knowledge/graph
+/app/reports, /app/reports/:id, /app/approvals
+/app/integrations, /app/activity, /app/audit
+Sidebar nav entry: shell.js -> navLink("/app/intelligence/product","P","Product Intelligence")
+
+--------------------------------------------------------------------------------
+6. CURRENT PRODUCT INTELLIGENCE LAYER (baseline to be revamped)
+--------------------------------------------------------------------------------
+UI  (src/product/pages/index.js)
+  - Single page with 4 tabs driven by state.productTab:
+      requirements | prioritization | strategy | roadmap
+  - Tab switch:  data-action="product-tab" data-tab="<key>"
+  - Header CTA:  data-action="product-mock" data-product-action="<tab>"
+  - Requirements: table (id/title/rationale, type, priority, status,
+                  evidence + architectureImpact, provenance badge)
+  - Prioritization: card grid (#rank, value/impact/effort/risk, status)
+  - Strategy: objective + principles + known risks cards
+  - Roadmap: sequenced list (release, milestone, dates, dependencies)
+  - Banner: "Mock Product Intelligence … no AI workflow is running."
+
+API facade (src/product/api/index.js -> shared/api/mock.js)
+  [API-48] listRequirements(projectId)    GET  /api/v1/projects/:projectId/requirements
+  [API-49] listProductFeatures(projectId) GET  /api/v1/projects/:projectId/features
+  [API-50] getProductStrategy(projectId)  GET  /api/v1/projects/:projectId/strategy
+  [API-51] listRoadmapItems(projectId)    GET  /api/v1/projects/:projectId/roadmap
+  [API-52] runProductMock(projectId, action, {idempotencyKey})
+           POST /api/v1/projects/:projectId/intelligence/product/mock-action
+           payload {action} ∈ requirements|prioritization|strategy|roadmap
+           -> { data:{ action, changed:false, mock:true } }  (alters nothing)
+
+State (shared/state/store.js, "product domain" group)
+  requirements[], productFeatures[], productStrategy (obj|null), roadmapItems[],
+  productTab (initial from ?productTab= query, default "requirements")
+
+Data loading (app/main.js ~L189): Promise.all of the 4 list/get calls on
+project hydrate; action handlers at ~L378 (product-tab, product-mock -> toast).
+
+Types (shared/types/types.d.ts)
+  Requirement   { id, projectId, title, type,
+                  priority: critical|high|medium|low|deferred,
+                  status: identified|clarified|approved|in_progress|implemented|
+                          validated|rejected|archived,
+                  evidence[], rationale?, architectureImpact?,
+                  provenance: confirmed|ai_suggested, confidence? }
+  ProductFeature{ id, projectId, title, businessValue, impact, effort, risk,
+                  priorityRank, status, rationale, provenance }
+  ProductStrategy { objective, principles[], risks[], provenance }
+  RoadmapItem   { id, projectId, milestone, release, sequence,
+                  status: planned|active|completed|delayed|cancelled,
+                  startDate?, endDate?, dependencies[] }
+
+Related: Chat composer has a "Product Layer" chip (work/constants.js) and the
+mock assistant returns "Product decision draft" artifacts (provenance ai_suggested).
+
+--------------------------------------------------------------------------------
+7. API CATALOG SUMMARY (full detail in ALL_APIs.TXT — 87 APIs, 15 modules)
+--------------------------------------------------------------------------------
+ M1  Auth & profile ............ API-01..04     M9  Product Intelligence ... API-48..52
+ M2  Workspaces & members ...... API-05..08     M10 DevOps Intelligence .... API-53..59
+ M3  Projects & settings ....... API-09..13     M11 Context/memory/graph ... API-60..64
+ M4  Repositories .............. API-14..18     M12 Reports & approvals .... API-65..74
+ M5  Multimodal assets ......... API-19..25     M13 Integrations ........... API-75..82
+ M6  Conversations ............. API-26..29     M14 Activity & audit ....... API-83..85
+ M7  Analysis & workflows ...... API-30..38     M15 Dashboard & readiness .. API-86..87
+ M8  MCP V2 runtime/trace ...... API-39..47
+(ranges approximate; check ALL_APIs.TXT for exact numbering)
+
+Catalog entry FORMAT used for every API (reuse for new ones):
+  [API-NN] api.methodName(args, { idempotencyKey })
+  - Logical Route:  METHOD /api/v1/...
+  - Scope:          Global | Workspace | Project-scoped | ...
+  - Payload:        { ... } | None
+  - Idempotency:    REQUIRED | Not required | None
+  - Response:       { "data": Type } | { "data": Type[], "meta": PageMeta }
+  - Mock Behavior:  one-line deterministic description
+
+Mock safety guarantees (must be preserved):
+  - zero external requests, zero execution
+  - approval != execution (executed:false, downstreamActionsExecuted:false)
+  - activity (mutable) != audit (immutable)
+  - recursive redaction: secrets -> [REDACTED]; bodies/headers -> [OMITTED]
+  - replayed idempotency key returns the identical saved receipt
+
+--------------------------------------------------------------------------------
+8. DESIGN SYSTEM / VISUAL STATE
+--------------------------------------------------------------------------------
+- Palette: grey ramp lifted from antigravity.google (light) with an inverted
+  dark theme ([data-theme="dark"] overrides ~63 tokens) + Google status colours.
+- Every colour in every stylesheet is a semantic token — no raw colours in rules.
+- Shape language: SQUARE corners (border-radius removed/minimised) so the UI
+  does not look AI-generated. Keep new components square.
+- Typography: modern sans (Inter-family); restrained, editorial.
+- Branding: official Penrose impossible-triangle logo across landing, console,
+  auth modal, favicon (src/assets + LOGO/). build.mjs copies assets to dist/.
+- Sidebar: separate scroll region, no extra bar; proper active highlight
+  (single active item — the "2 selected at once" bug was fixed).
+- Provenance: confirmed vs ai_suggested must stay visually distinct via the
+  shared provenance() helper.
+
+--------------------------------------------------------------------------------
+9. WORK COMPLETED (chronological highlights)
+--------------------------------------------------------------------------------
+Phases 0–10  Core domain APIs + views (auth → product/devops → reports/approvals)
+Phase 11     Integrations, activity, immutable audit (+ contract tests, CI)
+Phase 12     Decision dashboard, readiness, live transport adapter, QA
+Docs         README.md, STARTUP_GUIDE.md, ARCHITECTURE.md, ALL_APIs.TXT
+Branding     Penrose logo system everywhere; favicons; build pipeline copies assets
+UX fixes     Separate sidebar scroll, removed bar, redesigned highlights,
+             fixed double-selected nav state
+Theme        antigravity.google colour palette, light/dark tokens, square boxes
+Refactor     src/ restructured into domain modules with ONE router (commit 4ef2818)
+Chat & Work  New work/ domain: standalone /app/chat (no shell), Work = dashboard,
+             composer with ＋ Agent Mode (Video/Image/Web-Search/Code/Text),
+             Layer chip (Product/DevOps), Effort chip (Auto/Low/Med/High/Max);
+             deterministic mock receipts (modelInvoked/toolInvoked/... = false)
+             (commit 86a4bb8 — latest)
+Brain        brain/ knowledge graph regenerated (~280 nodes / ~595 edges at last run)
+GitHub       All of the above pushed to satyam022028singh/Synase-ai main
+
+--------------------------------------------------------------------------------
+10. CHECKLIST FOR THE PRODUCT INTELLIGENCE REVAMP (how to stay "in format")
+--------------------------------------------------------------------------------
+UI
+  [x] Views live in src/product/pages/ (overview.js, requirements.js, prioritization.js, strategy.js, roadmap.js, decisions.js) and src/product/components/ (intelligenceHeader.js, provenanceBadge.js, modals.js).
+  [x] Pure template-string functions reading `state`; escape everything;
+      interaction only via data-route / data-action.
+  [x] New sub-routes (/app/intelligence/product/:section) registered in app/router.js.
+  [x] Styles in src/styles/product/product.css using Antigravity tokens, square corners, dark-mode safe;
+      linked in app.html and registered in scripts/build.mjs.
+  [x] Clear provenance (confirmed vs ai_suggested with confidence meter) and mock banner.
+
+API
+  [x] New methods implemented in shared/api/mock.js (+ fixtures in db.js),
+      returning canonical { data, meta } envelopes; mirrored in shared/api/live.js.
+  [x] Exposed through src/product/api/index.js (productApi facade & factory).
+  [x] Called from app/main.js (hydrate, loadRouteData, delegated click, change, input, form submit handlers).
+  [x] Mutations require idempotencyKey with replay cache; deterministic receipts.
+  [x] Types added to shared/types/types.d.ts & src/product/types.d.ts.
+  [x] Contract tests added under test/product.test.mjs covering all endpoints and rendering.
+
+Verify & ship
+  [x] npm test (76/76 tests passing, 0 failures), npm run build (42 assets), npm run brain (381 nodes, 789 edges).
+  [x] Update brain/BRAIN.md and brain data models.
+  [x] Copied full pack docs & brain schemas to docs/product/ and brain/product/.
+
+--------------------------------------------------------------------------------
+11. CURRENT STATUS
+--------------------------------------------------------------------------------
+- Product Intelligence Layer (Phase 7 revamp) is 100% BUILT.
+  * Overview Bento Dashboard
+  * Requirements Inventory (Search, Status/Priority/Provenance filters, Detail Drawer, Import modal)
+  * Multi-criteria Prioritization Matrix (Value, Impact, Effort, Risk calibration, Auto-Rank, Delete feature)
+  * Strategic Intent & Tenets (Guiding principles, Known risks & mitigations)
+  * Sequenced Milestone Roadmap (Topological dependencies, status lifecycle, Resequencing)
+  * Audited Product Decisions Log (Trace log with evidence citations)
+  * Modals for creating & importing requirements, candidate features, roadmap milestones, and strategy.
+  * Antigravity design tokens + sharp square corners (border-radius: 0).
+  * 76/76 tests green; build manifest generated; committed and pushed (commit b65a539).
+
+--------------------------------------------------------------------------------
+12. SETTINGS CONTROL PLANE (synase_settings_development_pack) — 100% BUILT
+--------------------------------------------------------------------------------
+- Settings Control Plane (`src/settings/`) built strictly adhering to 3-layer architecture:
+  * 16 Canonical Configuration Domains:
+    1. General: Profile, email notifications, time zone selection
+    2. Workspace & Members: Organization entity, RBAC member management, guest reviewer access
+    3. Appearance & Accessibility: Google Antigravity Obsidian theme, UI spacing density, reduced motion
+    4. AI & Models: Foundation decision models, temperature slider, provider fallback, gateway status table
+    5. Agents & Autonomy: Autonomy level selector (assisted / supervised / autonomous), confirmation policy, step depth
+    6. Tools & Permissions: Granular execution permissions (shell execution, file mutation, MCP tools)
+    7. Memory & Context: ChromaDB semantic memory toggle, retention windows, auto-compaction threshold
+    8. Vault & Knowledge: Chunking window length (512 tokens), auto-indexing merged pull requests
+    9. API & Developer: Invariant 19 compliant API key manager with one-time reveal modal, diagnostic wire tracing
+    10. Automations: Parallel task concurrency, halt-on-error policy, scheduled background jobs table
+    11. Usage & Limits: Token consumption quotas, monthly cap ceiling, budget alert notifications
+    12. Security & Privacy: Mandatory MFA enforcement, session idle timeouts, cryptographic audit integration
+    13. Connectors: OAuth 2.0 telemetry sources (GitHub, Jira, Linear, Slack) with connect/disconnect flows
+    14. Messaging: Webhook channels, Slack broadcasts, quiet hours policy
+    15. Data & Import/Export: JSON snapshot backup export, schema validation & import preview, PII anonymization
+    16. Advanced: Experimental feature previews, diagnostic telemetry opt-in, Danger Zone factory reset
+  * Precedence & Scope Resolver:
+    Deterministic cascading: `system > workspace > project > agent > task > session > user`
+    Policy lock enforcement: locks cannot be overridden by lesser scopes.
+  * Invariant 08 (Idempotency):
+    Enforced on all mutating operations (`updateSetting`, `createApiKey`, `revokeApiKey`, `resetSettings`, `updateConnector`, `updateAutomation`).
+  * Invariant 19 (Credential Security):
+    API keys generated with `{ oneTimeSecret, secretShownOnce: true }`. Raw secrets never stored or re-revealed; only masked prefixes (`syn_live_...`) are persisted.
+  * Antigravity Design Language:
+    Pure Google Antigravity aesthetic: Dark Obsidian (`--bg`, `--surface`), sharp square geometry (`border-radius: 0`), two-column responsive layout, square toggle switches, high-contrast badges.
+  * Testing & Verification:
+    - 82/82 unit and contract tests passing (`npm test`).
+    - 52 static bundle assets generated (`npm run build`).
+    - Knowledge graph compiled with 395 nodes and 814 edges (`npm run brain`).
+
+--------------------------------------------------------------------------------
+13. MARKETING LANDING PAGE & PRO AUTH 4 SUITE — 100% BUILT & VERIFIED
+--------------------------------------------------------------------------------
+- Marketing Landing Page (`landing.html` + `src/home/landing/`):
+  * WebGL/Canvas fluid gradient waves animation (`gradientWaves.js`).
+  * Continuous kinetic partner & integration marquee (`logoLoop.js`).
+  * Ambient interactive blob cursor physics (`blobCursor.js`).
+  * Architecture Desk contact form with client validation, RFC email checks, and simulated inquiry dispatch (`contactForm.js`).
+- Complete Auth 4 Single-Page Viewport Experience (`app.html#/auth/login`):
+  * Strict single-page non-scrollable viewport (`100dvh`, zero vertical scroll at 1920x991 and all desktop breakpoints).
+  * Double-panel architecture:
+    - Left Art Panel:
+      * Brand header (`SYNASE AI DECISION INTELLIGENCE`) + Back to Home navigation.
+      * Bold commanding hero typography: Headline (`Clear engineering decisions from idea to production.`) with multi-color gradient shimmer on `production.`.
+      * Enterprise Platform eyebrow with tracked monospace styling.
+      * Expanded narrative description and three security badges (`SOC 2 Type II`, `Enterprise Grade · 99.99% SLA`, `Private & Encrypted · Zero Retention`).
+      * Orbital Trust Constellation: 3 concentric counter-rotating SVG orbits, glowing energy pulse particle nodes, central core disc with luminous violet aura and "TRUSTED ENGINEERING INTELLIGENCE" typography, and 6 floating integration nodes (GitHub, Kubernetes, Docker, Linear, Notion, Jira) with brand-calibrated hover glow and scale elevation.
+      * 3 Numbered Capability Cards (`01 Code & Specs`, `02 Smart Review`, `03 Verified Action`) with squircle icon boxes and live status pills.
+      * Clean bottom layout evenly distributed with quote element removed, allowing spacious, bold hero typography.
+    - Right Authentication Card:
+      * Glassmorphic card (`rgba(12, 14, 22, 0.94)`) with animated 2px top-edge gradient shimmer beam (`topBorderShimmer`).
+      * Segmented tab switcher (`Sign in` / `Create account`) with active slate-blue styling.
+      * Dual Enterprise OAuth SSO (`GitHub` and `Google SSO`).
+      * Credentials form with left-aligned icons, validation, and interactive password visibility toggler (`[data-toggle-password]`).
+      * High-contrast crisp white CTA button (`Sign in to Workspace →`).
+      * Instant Sandbox bypass button (`▶ Direct Demo Workspace Entry (ABESIT / Platform Prj) →`).
+- Testing & Verification:
+  * 94/94 contract and domain tests passing (`npm test`).
+  * 57 static bundle assets generated (`npm run build`).
+  * Knowledge graph compiled with 453 nodes and 920 edges (`npm run brain`).
+
+--------------------------------------------------------------------------------
+14. CURVED DROPDOWN ARCHITECTURE, WORK OPTIMIZATION & CLIP RESOLUTION — 100% COMPLETE & VERIFIED
+--------------------------------------------------------------------------------
+- Strict Solid Accents Rule:
+  * Eradication of multi-color, rainbow, or linear gradient fills on interactive controls (buttons, selects, pills, triggers).
+  * Replaced with solid calibrated slates (`#2563eb`, `#1e293b`, `#f8fafc`, `#090d16`), clean high-contrast iconography, and subtle 1px borders.
+- Custom Curved Dropdowns Across All Surfaces (Settings, Work, Chat, Topbar):
+  * Completely replaced native boxy Windows comboboxes with custom components (`border-radius: 12px` to `16px`).
+  * Smooth upward/downward SVG chevron rotation (`transform: rotate(180deg)`), active checkmarks, squircle icon badges, and outside-click dismissal.
+  * Dual-Contract Safety: Preserved hidden `<select>` elements (`display: none;`) with synchronized values, ensuring 100% automated test suite compatibility.
+- Topbar Switcher System (`src/app/shell.js` & `src/app/main.js`):
+  * Workspace Switcher (`SYNASE Core`) and Project Switcher (`SYNASE Platform`) converted from boxy OS comboboxes into custom `.topbar-dropdown` components with `.topbar-switcher-btn` triggers.
+  * Floating popovers (`.topbar-dropdown-menu`) with elevated shadows, category headers, active state checkmarks, and layer/folder icons.
+- Container Stacking & Clipping Resolution (`src/styles/home/dashboard.css` & `src/styles/app.css`):
+  * Overhauled `.p12-metric` and `.p12-panel` from `overflow: hidden;` to `overflow: visible; position: relative;`.
+  * Applied specific inner corner rounding (`border-top-left-radius: 19px`, `border-bottom-left-radius: 19px`) to child header components, completely eliminating card clipping on floating menus and tooltips while preserving rounded card frames.
+  * Stacking elevation calibrated: Topbar (`z-index: 80`), Topbar Switchers (`z-index: 120`), Custom Select Popovers (`z-index: 9999` with `.has-open-select`).
+- Chat Composer Intelligence & Multi-Source Ingestion:
+  * Added Auto Mode toggle button (like state-of-the-art AI chatbots) for rapid switching between autonomous orchestration and guided user prompts.
+  * Universal multi-source upload menu: Local files, Git repository branches, live API URLs, and raw architecture markdown text.
+- PWA Lifecycle & Cache Resilience:
+  * Service worker cache incremented to `synase-ai-shell-v12`.
+  * Asset cache-busting query strings updated across `app.html` to `?v=9`.
+  * Global click listener updated to `async (event) => { ... }` in `src/app/main.js`, resolving runtime syntax errors.
+- Verification & Test Proof:
+  * 103/103 tests passing (`npm test`): 0 failures, 0 skipped.
+  * 61 static distribution assets compiled cleanly into `dist/` and `public/` (`npm run build`).
+  * Synced and verified in real browser without console errors.
+  * Committed and pushed to `main`.
+================================================================================

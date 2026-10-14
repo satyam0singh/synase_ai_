@@ -1,0 +1,30 @@
+{
+  "name": "SYNASE AI — Decision Intelligence Platform",
+  "short_name": "SYNASE AI",
+  "description": "Enterprise decision-intelligence platform that connects requirements, repositories, architecture, and DevOps telemetry.",
+  "start_url": "./landing.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07080c",
+  "theme_color": "#1a73e8",
+  "icons": [
+    {
+      "src": "./src/assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./src/assets/logo-mark.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "developer",
+    "productivity",
+    "utilities"
+  ]
+}

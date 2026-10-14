@@ -1,0 +1,265 @@
+{
+  "product": "SYNASE AI",
+  "phases": [
+    "Phase 0",
+    "Phase 1",
+    "Phase 2",
+    "Phase 3",
+    "Phase 4",
+    "Phase 5",
+    "Phase 6",
+    "Phase 7",
+    "Phase 8",
+    "Phase 9",
+    "Phase 10",
+    "Phase 11",
+    "Phase 12"
+  ],
+  "generatedAt": "2026-10-14T12:50:12.678Z",
+  "files": {
+    "index.html": {
+      "bytes": 338,
+      "sha256": "93779fd99e20896287302dfb06dad7e3fb3879279fb484bb580ff85d40139f9a"
+    },
+    "landing.html": {
+      "bytes": 56361,
+      "sha256": "bc0e10b42fae122a63381d43abcda3ec194066908353b3d6643168cb632aaf2d"
+    },
+    "app.html": {
+      "bytes": 2493,
+      "sha256": "974fd1a9dfd644ad40a713209abae3029b3b1533bab3e32d443f0072b87c0161"
+    },
+    "manifest.webmanifest": {
+      "bytes": 807,
+      "sha256": "210786a7a18ce6d56204a3e1eed787d0bd09c73c5722693d7549d919256e45cb"
+    },
+    "sw.js": {
+      "bytes": 5923,
+      "sha256": "c1868d6c7067e58f8f3591da8d49bf163a6ca91131bacda2af9b6120414f026a"
+    },
+    "src/app/main.js": {
+      "bytes": 87811,
+      "sha256": "29b9895c9e53d52796190a1b37ef84900fa42b6c63bc076698ce2135ac3fd54c"
+    },
+    "src/app/router.js": {
+      "bytes": 5821,
+      "sha256": "adba3d9d83cba6c35b6aa65d562485be48231ffe47a2281a8761d6fa8a2a3e4c"
+    },
+    "src/app/shell.js": {
+      "bytes": 25630,
+      "sha256": "f6ae8ee388bf89bc20018f5e30cfe013e42555b4a588152575b5edc69dbbdd75"
+    },
+    "src/app/paths.js": {
+      "bytes": 2321,
+      "sha256": "78a216ee6f06c592dd64d5e0f7469f688b0df30415d69d3821723058385c8388"
+    },
+    "src/app/auth.js": {
+      "bytes": 24972,
+      "sha256": "0aa57bcab7853be896949a4dca53cdc5c88f5385734e7fc54961d8675e55c155"
+    },
+    "src/app/actions/work.js": {
+      "bytes": 15478,
+      "sha256": "cf7e7ec1c00c6e0a2d029b4f1f01aa46b533bc6c85b4aa79a25a876ff40d6619"
+    },
+    "src/shared/api/index.js": {
+      "bytes": 750,
+      "sha256": "f1e134a8420df8e504a103b7b7d2e45afcfcbdea881820bf27080a3f60093395"
+    },
+    "src/shared/api/mock.js": {
+      "bytes": 64882,
+      "sha256": "ef65dc51d138410c3951bd477ca28d793c1bbfd2c26bee44e0b1641ae2a92d03"
+    },
+    "src/shared/api/db.js": {
+      "bytes": 45660,
+      "sha256": "6874ea832812709bc4c14dae8e9e3b434dc145c2b51c903fe2aa0c2f5f5deceb"
+    },
+    "src/shared/api/errors.js": {
+      "bytes": 369,
+      "sha256": "8e9bf2be168a71b9d96995d5e72314924866cedcb294a4bedaddae4edb10a1e4"
+    },
+    "src/shared/api/live.js": {
+      "bytes": 322,
+      "sha256": "b4e53687cd2f76bb508ea2d217696ed2473f154f15f206aa146f20a180f0cedf"
+    },
+    "src/shared/api/idempotency.js": {
+      "bytes": 225,
+      "sha256": "86b12f2fedd9a5dfb53617852fc06db1fd241dabf21f7ae10cc84c8e04192d38"
+    },
+    "src/shared/api/redaction.js": {
+      "bytes": 820,
+      "sha256": "dcb05e346339b7b1832a71155d9f409a4d39b0faadb87187c18d2cc6983d3bb6"
+    },
+    "src/shared/components/ui.js": {
+      "bytes": 4481,
+      "sha256": "9f3d340cbeaa8294dcf6343f951f86bc83515659f32b353a6724c89d6af6876e"
+    },
+    "src/shared/components/icons.js": {
+      "bytes": 29333,
+      "sha256": "4bde46471a6b9096415616559c00653f9658d8d1d775cd97f1c7c47558472b07"
+    },
+    "src/shared/state/store.js": {
+      "bytes": 5699,
+      "sha256": "8137dc51bccfe20db61131d7bdc53c3676a6e33ef3e4800e84cfba726da655b6"
+    },
+    "src/shared/services/theme.js": {
+      "bytes": 2918,
+      "sha256": "6768b17a81d0d4458ec9e3f08c2279cced1ce23658d0797be39109c16c09eb42"
+    },
+    "src/shared/utils/format.js": {
+      "bytes": 1134,
+      "sha256": "ca1cbfde991672c0c598d52b434c1a390eee8c4030bfb6f9761b974c54d6b278"
+    },
+    "src/shared/types/types.d.ts": {
+      "bytes": 15729,
+      "sha256": "b7e2ffc4ed8989489f007022dd8b0039db57a8bc07debc127bd27d34fae5ef23"
+    },
+    "src/assets/lucide.min.js": {
+      "bytes": 450376,
+      "sha256": "3e24547d997a0cab2ec15a1edf8e04bf4ac66316afa219f39e7e1581c52586fa"
+    },
+    "src/home/landing/landing.js": {
+      "bytes": 13791,
+      "sha256": "93bfaabdfc0f55a7549d4d177c48cd1e65ebeac60c82fc330b2b79b3f96671e1"
+    },
+    "src/home/landing/gradientWaves.js": {
+      "bytes": 14809,
+      "sha256": "c02f78aacdb479d0a8022706a3a5c960d5de67de647085a987fbc3013a233ef6"
+    },
+    "src/home/landing/logoLoop.js": {
+      "bytes": 8369,
+      "sha256": "8f3f377fad0b1c9de1cd45a34f4ceafa8efeb0f9436b4d7fd91f7d4be0bfd8a4"
+    },
+    "src/home/landing/blobCursor.js": {
+      "bytes": 8096,
+      "sha256": "27de38b45d53686e1dea4eb954b560f16943082a9dff9b1047221e9d05a59c49"
+    },
+    "src/home/landing/contactForm.js": {
+      "bytes": 12631,
+      "sha256": "14a10af0b86137c0dadc7368c4e913caff172352686662816e691d73689b6bac"
+    },
+    "src/home/workspace/api/index.js": {
+      "bytes": 3446,
+      "sha256": "4a524232405ecaa55861ec6abe829bcba1d6b0bb09bfd53aa325fbe1f0634ca0"
+    },
+    "src/product/api/index.js": {
+      "bytes": 3530,
+      "sha256": "af67fc39ec668dc6fc2a8e76940d7cb32b4ed83256c6f2ae508262c568f679f8"
+    },
+    "src/devops/api/index.js": {
+      "bytes": 719,
+      "sha256": "0efc72e4d884e850bfb141f0b881b6def52e445b5f8d8dc813abee8ca10bf425"
+    },
+    "src/mcp/api/index.js": {
+      "bytes": 800,
+      "sha256": "462cdbbfe6421571bcd154f29e273e3efc6db8266ba164685d00407cf423a7f7"
+    },
+    "src/context/api/index.js": {
+      "bytes": 653,
+      "sha256": "8ebd63f769b59fd172cadafd3f273c98202339d8b3b0f315f7ac3fbcc40c51a0"
+    },
+    "src/outputs/api/index.js": {
+      "bytes": 1168,
+      "sha256": "9dad5f09a06793a9ecb96e5b1c901745ed967f03e0912e5fd65d160012126ac6"
+    },
+    "src/work/api/index.js": {
+      "bytes": 1855,
+      "sha256": "e907a71b63204e65c09e81c1d63286beaa1f3782709c6ee7ffc958ceb14a7177"
+    },
+    "src/work/constants.js": {
+      "bytes": 3476,
+      "sha256": "44a9612eb0be49e1372ccb172d0e560520429d35185513293a9ff82c77a89ed2"
+    },
+    "src/work/pages/index.js": {
+      "bytes": 5762,
+      "sha256": "876ac23ed1379b3f402c1def74f3fd99e256c22a6a4c71a72af240a62a4db100"
+    },
+    "src/work/components/index.js": {
+      "bytes": 13873,
+      "sha256": "24dd3bee494cc3f9ed077ed2d946e214af7208407ed5fed1cb8bd3428d0462c9"
+    },
+    "src/settings/api/index.js": {
+      "bytes": 3320,
+      "sha256": "59a8395d2c9177c831453ea1160362ab2f6429409c2624f1b83355deb1df5cf9"
+    },
+    "src/settings/engine/registry.js": {
+      "bytes": 204,
+      "sha256": "ac77186c50b3f2b0184ca31ac45decdaf745c75eab53a302db18170557149e12"
+    },
+    "src/settings/engine/scopeResolver.js": {
+      "bytes": 192,
+      "sha256": "34c3e4dee4927a751fe59d4a9f33585b787935558befe04fd5d5acfcb5f1f6b0"
+    },
+    "src/settings/components/index.js": {
+      "bytes": 44779,
+      "sha256": "414d81ae25cfcbed8151d984de8ae6bbc10e8c7c68d25af98a997f11c244f4c7"
+    },
+    "src/settings/components/settingsSidebar.js": {
+      "bytes": 5909,
+      "sha256": "f906f362296593e96e8d9a1fc26150f2a2a0ebb143df89a65e7aadaa79088901"
+    },
+    "src/settings/components/settingsHeader.js": {
+      "bytes": 2411,
+      "sha256": "28572d706b882dd666e07ed7bdb5a001ff165742f7675752b231a1a104640538"
+    },
+    "src/settings/components/settingRow.js": {
+      "bytes": 4795,
+      "sha256": "cdf7e5189d283c0c8d53e15d6ccf5f93a2fbbdc969fbeec69695adac29d6201d"
+    },
+    "src/settings/components/settingsInspector.js": {
+      "bytes": 12357,
+      "sha256": "8512a3ead144da64b1372ecdad791513a402e61bfb237ebf209973bcea8197c4"
+    },
+    "src/settings/components/modals.js": {
+      "bytes": 14468,
+      "sha256": "cfc74f9873e47a03410ba65f741f43e4f3cec77a15285e3a0f1c5c34af7529ea"
+    },
+    "src/settings/pages/index.js": {
+      "bytes": 3213,
+      "sha256": "87d490ea714dd431c3579ef53841cca0611bb29243abeb7a52cfb82d4ddbf988"
+    },
+    "src/integrations/api/client.js": {
+      "bytes": 10310,
+      "sha256": "81df3fb6e3d66619ecf3281e4b3efdadea23bbb7b10cf16ff0204d05048b13ce"
+    },
+    "src/integrations/api/types.d.ts": {
+      "bytes": 2926,
+      "sha256": "37cb12ebfedf107514483047b8895c0aaed3fe72fc5a25ed2d45ad491fbe1182"
+    },
+    "src/home/workspace/dashboard/api.js": {
+      "bytes": 9576,
+      "sha256": "cedda5dda149d81a8e9228d56db73e44b840ed5e0da8754dbc1b9aa68158fdcf"
+    },
+    "src/home/workspace/dashboard/types.d.ts": {
+      "bytes": 2170,
+      "sha256": "1f281e8ca57baf384c1463bd537784fe8fe6eba1875241c847a3c70a4736f75f"
+    },
+    "src/styles/app.css": {
+      "bytes": 119810,
+      "sha256": "c29f81391c95e1a1dca8c762516aa5abed406492e80415ab5bdc8390b4ba85f7"
+    },
+    "src/styles/home/dashboard.css": {
+      "bytes": 12186,
+      "sha256": "df934d9661a1c3d153b4497179714155a6895ebe497b4700393df1f121ef7bf2"
+    },
+    "src/styles/integrations/integrations.css": {
+      "bytes": 3393,
+      "sha256": "740eaafa25a439eb524b670202b68cb7e854e17be597cdc01c44bd88cb9ed00b"
+    },
+    "src/styles/landing/landing.css": {
+      "bytes": 82376,
+      "sha256": "3e5dc824288632794cdd7dee47ebd2b315c2730887cf2042c28b41fbf718d8b8"
+    },
+    "src/styles/work/work.css": {
+      "bytes": 28501,
+      "sha256": "43f061d74674673588231a99ea1b7a89e145185ccfc204a981c79ae5ff52b9ef"
+    },
+    "src/styles/product/product.css": {
+      "bytes": 26664,
+      "sha256": "9f57c9b77e7539b848e353a2ff4ad42c47409f643af38325409aafe5767b60f4"
+    },
+    "src/styles/settings/settings.css": {
+      "bytes": 48221,
+      "sha256": "7e2dc9461d771339ac88c121cc029a3cf3e2e314b67df06f2187c87a600b8bbf"
+    }
+  }
+}

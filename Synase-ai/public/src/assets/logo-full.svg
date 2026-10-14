@@ -1,0 +1,25 @@
+<svg class="brand-full-logo" viewBox="0 0 380 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wordGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#121317"/>
+      <stop offset="100%" stop-color="#45474d"/>
+    </linearGradient>
+    <linearGradient id="aGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3279f9"/>
+      <stop offset="50%" stop-color="#45474d"/>
+      <stop offset="100%" stop-color="#1557b0"/>
+    </linearGradient>
+  </defs>
+  <!-- SYN -->
+  <text x="0" y="44" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="42" letter-spacing="3" fill="url(#wordGrad)">SYN</text>
+  <!-- Impossible Triangle replacing the 'A' -->
+  <g transform="translate(132, 6) scale(0.48)">
+    <path d="M50 6 L92 78 L76 78 L42 20 L50 6 Z" fill="url(#aGlow)" fill-opacity="0.2" stroke="#3279f9" stroke-width="3" stroke-linejoin="round" />
+    <path d="M92 78 L8 78 L16 64 L76 64 L76 78 Z" fill="url(#aGlow)" fill-opacity="0.25" stroke="#1557b0" stroke-width="3" stroke-linejoin="round" />
+    <path d="M8 78 L50 6 L58 20 L24 78 L8 78 Z" fill="url(#aGlow)" fill-opacity="0.3" stroke="#45474d" stroke-width="3" stroke-linejoin="round" />
+    <path d="M42 20 L58 20 L30 68 L74 68 L66 54 L38 54 L50 34" stroke="#121317" stroke-width="1.8" stroke-opacity="0.45" fill="none" stroke-linejoin="round" />
+  </g>
+  <!-- SE AI -->
+  <text x="188" y="44" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="42" letter-spacing="3" fill="url(#wordGrad)">SE</text>
+  <text x="272" y="44" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="42" letter-spacing="4" fill="url(#wordGrad)">AI</text>
+</svg>

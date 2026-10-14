@@ -1,0 +1,7 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { phase11Api } from "../src/integrations/api/client.js";
+test("activity filters by actor action domain and date", async () => { const { data } = await phase11Api.listActivity("prj_platform", { actor: "usr_satyam", action: "integration", domain: "integrations", from: "2026-09-29" }); assert.ok(data.length > 0); assert.ok(data.every((item) => item.actor.id === "usr_satyam" && item.action.includes("integration") && item.domain === "integrations")); });
+test("disconnect receipt preserves non execution semantics", async () => { const { data } = await phase11Api.disconnectIntegration("prj_platform", "int_github", { idempotencyKey: "test-disconnect" }); assert.equal(data.status, "mock_receipt"); assert.equal(data.executed, false); assert.equal(data.connectionStatus, "unchanged"); });
+test("audit detail preserves safe identifiers and immutable projection", async () => { const list = await phase11Api.listAuditEvents("prj_platform"); const { data } = await phase11Api.getAuditEvent("prj_platform", list.data[0].id); assert.equal(data.immutable, true); assert.ok(data.requestId); assert.ok(data.correlationId); assert.ok(data.resource.id); });
+test("cross project integration detail is rejected", async () => { await assert.rejects(() => phase11Api.getIntegrationConnection("prj_mcp", "int_github"), (error) => error.code === "RESOURCE_NOT_FOUND" && error.status === 404); });

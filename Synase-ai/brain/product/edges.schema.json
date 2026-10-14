@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Synase Product Brain Edge",
+  "type": "object",
+  "required": ["from", "to", "type"],
+  "properties": {
+    "from": { "type": "string" },
+    "to": { "type": "string" },
+    "type": { "type": "string" },
+    "evidenceIds": { "type": "array", "items": { "type": "string" } }
+  }
+}
