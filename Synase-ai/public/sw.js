@@ -9,7 +9,7 @@
  * - Static shell assets (HTML, CSS, JS, SVG) use cache-first with stale-while-revalidate update flow.
  */
 
-const CACHE_NAME = "synase-ai-shell-v12";
+const CACHE_NAME = "synase-ai-shell-v13";
 
 const STATIC_PRECACHE = [
   "./",
@@ -33,6 +33,11 @@ const STATIC_PRECACHE = [
   "./src/app/shell.js",
   "./src/app/paths.js",
   "./src/app/auth.js",
+  "./src/shared/api/index.js",
+  "./src/shared/api/live.js",
+  "./src/shared/api/errors.js",
+  "./src/shared/api/mock.js",
+  "./src/home/workspace/api/index.js",
   "./src/home/landing/landing.js",
   "./src/home/landing/gradientWaves.js",
   "./src/home/landing/logoLoop.js",
@@ -87,7 +92,12 @@ self.addEventListener("fetch", (event) => {
   }
 
   // 2. Sensitive / API routes: Network only (never cache credentials, user tokens, or live APIs)
-  if (url.pathname.startsWith("/api/v1/auth") || url.pathname.startsWith("/api/v1/")) {
+  if (
+    url.pathname.startsWith("/api/auth/") ||
+    url.pathname.startsWith("/api/v1/auth") ||
+    url.pathname.startsWith("/api/v1/") ||
+    url.pathname.startsWith("/user/")
+  ) {
     event.respondWith(
       fetch(request).catch(() => {
         return new Response(

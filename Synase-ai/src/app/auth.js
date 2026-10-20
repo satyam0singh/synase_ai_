@@ -312,9 +312,18 @@ export function authPage(kind = "login") {
             <label for="auth-email">Work email <span class="req">*</span></label>
             <div class="input-with-icon">
               <svg class="field-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <input id="auth-email" name="email" type="email" autocomplete="email" value="${kind === "login" ? "alex.turner@company.com" : ""}" placeholder="alex.turner@company.com" required />
+              <input id="auth-email" name="email" type="email" autocomplete="email" placeholder="alex@company.com" required />
             </div>
           </div>
+
+          ${kind === "register" ? `
+            <div class="field">
+              <label for="auth-phone">Phone number <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <input id="auth-phone" name="phoneNo" type="tel" inputmode="numeric" autocomplete="tel" pattern="[0-9]{10}" minlength="10" maxlength="10" required placeholder="10-digit phone number" />
+              </div>
+            </div>
+          ` : ""}
 
           ${kind !== "forgot" ? `
             <div class="field">
@@ -324,7 +333,7 @@ export function authPage(kind = "login") {
               </div>
               <div class="password-input-wrap input-with-icon">
                 <svg class="field-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <input id="auth-password" name="password" type="password" value="${kind === "login" ? "••••••••••••" : ""}" autocomplete="${kind === "login" ? "current-password" : "new-password"}" minlength="8" required placeholder="••••••••••••" />
+                <input id="auth-password" name="password" type="password" autocomplete="${kind === "login" ? "current-password" : "new-password"}" minlength="8" required placeholder="Enter your password" />
                 <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-toggle-password="auth-password">
                   <svg class="eye-icon eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>

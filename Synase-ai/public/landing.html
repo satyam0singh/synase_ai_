@@ -658,12 +658,12 @@
           <form data-auth-submit="login">
             <div class="auth-field">
               <label for="login-email">Work Email</label>
-              <input id="login-email" name="email" type="email" autocomplete="email" required value="alex.turner@company.com" placeholder="name@company.com" />
+              <input id="login-email" name="email" type="email" autocomplete="email" required placeholder="name@company.com" />
             </div>
             <div class="auth-field">
               <label for="login-password">Password</label>
               <div class="password-input-wrap">
-                <input id="login-password" name="password" type="password" autocomplete="current-password" minlength="8" required value="••••••••••••" placeholder="Min. 8 characters" />
+                <input id="login-password" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="Min. 8 characters" />
                 <button type="button" class="password-toggle-btn" aria-label="Toggle password visibility" data-toggle-password="login-password">
                   <svg class="eye-icon eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -701,6 +701,10 @@
             <div class="auth-field">
               <label for="reg-email">Work Email</label>
               <input id="reg-email" name="email" type="email" autocomplete="email" required placeholder="alex@company.com" />
+            </div>
+            <div class="auth-field">
+              <label for="reg-phone">Phone number (10 digits)</label>
+              <input id="reg-phone" name="phoneNo" type="tel" inputmode="numeric" autocomplete="tel" pattern="[0-9]{10}" minlength="10" maxlength="10" required placeholder="10-digit phone number" />
             </div>
             <div class="auth-field">
               <label for="reg-password">Password</label>

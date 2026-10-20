@@ -188,11 +188,11 @@ const dashboardService = createPhase12Service({
 
 Important constraints:
 
-1. The checked-in application does not automatically switch to live mode.
+1. Authentication is connected to the configured orchestrator backend; the remaining workspace and product APIs continue to use the mock adapter.
 2. Do not place tokens, passwords, API keys, cookies, or secret-manager values in frontend code or public environment values.
 3. The base URL must use HTTPS, except for `http://localhost` and `http://127.0.0.1` during local development.
 4. The current live dashboard request is read-only: `GET /api/v1/dashboard`.
-5. Authentication/session behavior is unresolved. The service uses browser credentials mode but does not define login, renewal, logout, or callback behavior.
+5. Authentication uses a JWT from `POST /api/auth/login`, stored in browser local storage and sent as a Bearer token to `GET /user/me`. Token renewal and password recovery are not implemented.
 6. A successful frontend build is not evidence that the backend is connected or authorized.
 7. Keep mock and live adapters interface-compatible.
 8. Do not add browser-side joins to compensate for missing aggregate endpoints.

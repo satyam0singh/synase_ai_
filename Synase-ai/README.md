@@ -270,6 +270,12 @@ The platform implements an enterprise RESTful specification documented in [`ALL_
 
 ## Getting Started
 
+### Live orchestrator authentication
+
+The landing-page and full-page login/register forms use the deployed Spring Boot orchestrator. The public backend base URL is configured in `src/shared/api/live.js`; authentication calls `POST /api/auth/login` and `POST /api/auth/register`, and the app restores a signed-in user with `GET /user/me`. Login stores the returned JWT in browser local storage and sends it as a Bearer token to the current-user endpoint. Registration requires a full name, email, password, and 10-digit phone number. Password recovery is not implemented by the backend yet.
+
+Only authentication and current-user lookup are live. Workspace, projects, analysis, and other product data continue to use the deterministic mock adapter until matching backend APIs are available.
+
 ### Prerequisites
 * **Node.js**: `v20.0.0` or higher (built and verified on Node `v24`).
 * **Package Manager**: `npm` (ships with Node.js).

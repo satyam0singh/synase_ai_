@@ -612,8 +612,11 @@ document.addEventListener("click", async (event) => {
     }
   }
   if (action === "sign-out") {
+    workspaceApi.logout();
+    state.authenticated = false;
+    state.user = null;
     state.profileOpen = false;
-    navigate(routes.login);
+    navigate("/auth/login");
     toast("Signed out successfully.");
     render();
   }
@@ -1745,6 +1748,13 @@ document.addEventListener("submit", async (event) => {
       return;
     }
 
+    if (kind === "register" && !/^\d{10}$/.test(String(values.phoneNo || "").replace(/\D/g, ""))) {
+      if (message) message.innerHTML = `<div class="alert error" role="alert"><strong>Validation Error:</strong> Enter a 10-digit phone number.</div>`;
+      const phoneInput = form.querySelector("#auth-phone");
+      if (phoneInput instanceof HTMLElement) phoneInput.focus();
+      return;
+    }
+
     if (kind !== "forgot" && (!values.password || String(values.password).length < 8)) {
       if (message) {
         message.innerHTML = `<div class="alert error" role="alert"><strong>Validation Error:</strong> Password must be at least 8 characters.</div>`;
@@ -1772,7 +1782,7 @@ document.addEventListener("submit", async (event) => {
       } else if (kind === "register") {
         await workspaceApi.register(values);
         if (message) {
-          message.innerHTML = `<div class="alert success" role="alert"><strong>Registration Successful.</strong> Verification instructions dispatched to <strong>${escapeHtml(email)}</strong>.</div>`;
+          message.innerHTML = `<div class="alert success" role="alert"><strong>Account created.</strong> You can now sign in with <strong>${escapeHtml(email)}</strong>.</div>`;
         }
         form.reset();
       } else {

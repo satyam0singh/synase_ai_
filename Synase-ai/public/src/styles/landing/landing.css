@@ -1386,6 +1386,8 @@
       .auth-error { padding: 10px 12px; border-radius: 6px; background: rgba(197, 34, 31, 0.12); border: 1px solid rgba(197, 34, 31, 0.35); color: #dc2626; font-size: 12.5px; margin-top: 10px; display: none; }
       [data-theme='dark'] .auth-error { color: #fca5a5; }
       .auth-error.show { display: block; }
+      .auth-error.success { color: #15803d; background: rgba(21, 128, 61, 0.1); border-color: rgba(21, 128, 61, 0.35); }
+      [data-theme='dark'] .auth-error.success { color: #86efac; }
 
       /* ── NAV BACKDROP & MOBILE CTA ───────────────────── */
       .nav-backdrop {

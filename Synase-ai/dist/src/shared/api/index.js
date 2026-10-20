@@ -7,6 +7,7 @@
    there is still exactly one implementation. */
 
 import { mockApi } from "./mock.js";
+import { liveApi, getAccessToken } from "./live.js";
 
 export { ApiError } from "./errors.js";
 export { createIdempotencyKey } from "./idempotency.js";
@@ -15,5 +16,14 @@ export { mockApi } from "./mock.js";
 export { liveApi } from "./live.js";
 export { db } from "./db.js";
 
-/* Historical alias kept for compatibility. */
-export const api = mockApi;
+/* Keep product data on its deterministic fixtures while auth uses the live
+   orchestrator. This lets the deployed frontend authenticate without
+   pretending the backend already implements the other product domains. */
+export const api = {
+  ...mockApi,
+  login: liveApi.login,
+  register: liveApi.register,
+  recover: liveApi.recover,
+  getMe: () => getAccessToken() ? liveApi.getMe() : mockApi.getMe(),
+  logout: liveApi.logout
+};

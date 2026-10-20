@@ -7,6 +7,7 @@ import { initGradientWaves } from "./gradientWaves.js";
 import { initLogoLoop } from "./logoLoop.js";
 import { initBlobCursor } from "./blobCursor.js";
 import { initContactForm } from "./contactForm.js";
+import { workspaceApi } from "../workspace/api/index.js";
 
 /* ── AUTH ──────────────────────────────────────────── */
 function openAuth() {
@@ -36,7 +37,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeAuth();
 });
 
-/* ── FORM HANDLING (calls mock API, then redirects to app) ── */
+/* ── FORM HANDLING (live orchestrator authentication) ── */
 async function handleAuth(event, kind) {
   event.preventDefault();
   const form = event.target;
@@ -45,33 +46,27 @@ async function handleAuth(event, kind) {
   btn.disabled = true;
   btn.textContent = kind === 'login' ? 'Signing in…' : 'Creating account…';
   errorEl.classList.remove('show');
+  errorEl.classList.remove('success');
   try {
     const body = {};
     new FormData(form).forEach((v, k) => body[k] = v);
-    body.idempotencyKey = 'ik_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const res = await fetch('/api/v1/auth/' + kind, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    if (res.ok) {
-      closeAuth();
-      window.location.href = 'app.html#/app/chat';
-    } else if (res.status === 404 || res.status === 0) {
-      /* Dev: mock adapter not connected — go straight to app */
+    if (kind === 'login') {
+      await workspaceApi.login(body);
       closeAuth();
       window.location.href = 'app.html#/app/chat';
     } else {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data?.error?.message || (kind === 'login' ? 'Invalid credentials.' : 'Registration failed.'));
+      await workspaceApi.register(body);
+      form.reset();
+      switchAuthTabByName('login');
+      const loginError = document.getElementById('login-error');
+      if (loginError) {
+        loginError.textContent = 'Account created. Sign in with your new credentials.';
+        loginError.classList.add('show', 'success');
+      }
     }
-  } catch(e) {
-    if (e.message && !e.message.includes('fetch') && !e.message.includes('Failed')) {
-      errorEl.textContent = e.message; errorEl.classList.add('show');
-    } else {
-      /* Network down / local dev — fall through to app */
-      closeAuth();
-      window.location.href = 'app.html#/app/chat';
-    }
+  } catch (e) {
+    errorEl.textContent = e instanceof Error ? e.message : 'Authentication failed. Please try again.';
+    errorEl.classList.add('show');
   } finally {
     btn.disabled = false;
     btn.textContent = kind === 'login' ? 'Sign in' : 'Create account';

@@ -11,6 +11,7 @@ export const workspaceApi = {
   register: (input) => api.register(input),
   recover: (email) => api.recover(email),
   getMe: () => api.getMe(),
+  logout: () => api.logout(),
 
   /* workspaces + members */
   listWorkspaces: () => api.listWorkspaces(),
